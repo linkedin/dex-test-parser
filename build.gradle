@@ -1,0 +1,44 @@
+import com.linkedin.gradle.DistributeTask
+
+buildscript {
+    ext.kotlinVersion = '1.0.6'
+
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.4'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4'
+        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.4.0'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
+        classpath 'org.jetbrains.dokka:dokka-gradle-plugin:0.9.9'
+    }
+}
+
+apply plugin: 'com.jfrog.artifactory'
+apply plugin: 'maven-publish'
+
+allprojects {
+    group = GROUP_ID
+}
+
+artifactoryPublish.skip = true
+artifactory {
+    contextUrl = 'https://linkedin.jfrog.io/linkedin'
+    publish {
+        repoKey = 'dex-test-parser'
+        username = System.getenv('ARTIFACTORY_USER') ?: ""
+        password = System.getenv('ARTIFACTORY_KEY') ?: ""
+        publishArtifacts = true
+
+        defaults {
+            publications('lib')
+        }
+    }
+    clientConfig.setIncludeEnvVars(false)
+}
+
+task distributeBuild(type: DistributeTask) {
+    dependsOn ':artifactoryPublish', 'parser:artifactoryPublish'
+}
