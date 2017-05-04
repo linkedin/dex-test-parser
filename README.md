@@ -31,6 +31,8 @@ or Gradle:
     compile 'com.linkedin.dextestparser:parser:1.0.0'
 ```
 
+or you can manually download the jar from [Bintray](https://bintray.com/linkedin/maven/parser).
+
 ## Getting Started
 
 dex-test-parser provides a single public method that you can call from Java to get all test method names.
