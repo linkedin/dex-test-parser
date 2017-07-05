@@ -4,6 +4,7 @@
  */
 package com.linkedin.dex.parser
 
+import com.linkedin.dex.spec.ACC_INTERFACE
 import com.linkedin.dex.spec.AnnotationItem
 import com.linkedin.dex.spec.AnnotationSetItem
 import com.linkedin.dex.spec.AnnotationsDirectoryItem
@@ -20,6 +21,7 @@ fun DexFile.findJUnit4Tests(): List<String> {
     val matchingItems: MutableList<String> = mutableListOf()
 
     classDefs.filter(::hasAnnotations)
+            .filterNot(::isInterface)
             .map { Pair(it, AnnotationsDirectoryItem.create(byteBuffer, it.annotationsOff)) }
             .map { Pair(it.first, it.second.methodAnnotations) }
             .map { Pair(it.first, getMethodsWithAnnotation(it.second, testAnnotationDescriptor)) }
@@ -46,6 +48,10 @@ fun DexFile.formatClassName(classDefItem: ClassDefItem): String {
     className += "#"
 
     return className
+}
+
+private fun isInterface(classDefItem: ClassDefItem): Boolean {
+    return classDefItem.accessFlags and ACC_INTERFACE == ACC_INTERFACE
 }
 
 private fun DexFile.getMethodsWithAnnotation(annotations: Array<MethodAnnotation>, targetDescriptor: String): List<String> {
