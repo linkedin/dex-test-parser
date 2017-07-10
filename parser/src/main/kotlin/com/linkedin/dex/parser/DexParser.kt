@@ -8,6 +8,7 @@ import com.linkedin.dex.spec.DexFile
 import java.io.File
 import java.io.FileInputStream
 import java.nio.ByteBuffer
+import java.nio.file.Files
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
@@ -34,7 +35,7 @@ class DexParser private constructor() {
 
             val allItems = Companion.findTestNames(apkPath)
 
-            java.nio.file.Files.write(File(outputPath + "/AllTests.txt").toPath(), allItems)
+            Files.write(File(outputPath + "/AllTests.txt").toPath(), allItems)
         }
 
         /**
@@ -65,7 +66,7 @@ class DexParser private constructor() {
                         .filter { it.name.endsWith(".dex") }
                         .map { zip.readBytes() }
                         .map { ByteBuffer.wrap(it) }
-                        .map { DexFile(it) }
+                        .map(::DexFile)
                         .toList()
             }
         }
