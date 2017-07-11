@@ -11,3 +11,4 @@
 out/
 */bin/
 .DS_Store
+local.properties

@@ -73,7 +73,25 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+
+    testCompile 'junit:junit:4.12'
 }
 
 artifactoryPublish.dependsOn shadowJar
 build.dependsOn shadowJar
+
+task testParsing(dependsOn: ':test-app:assembleDebugAndroidTest', type: JavaExec) {
+    classpath sourceSets.main.runtimeClasspath
+    main = 'com.linkedin.dex.parser.DexParser'
+    args "${rootProject.project('test-app').buildDir}/outputs/apk/test-app-debug-androidTest.apk", "$buildDir"
+
+    doLast {
+        def validTests = file('ValidTestList.txt').readLines()
+        def parsedTests = file("$buildDir/AllTests.txt").readLines()
+
+        if (validTests != parsedTests) {
+            throw new GradleException("Parsed tests do not match expected tests")
+        }
+    }
+}
+check.dependsOn testParsing

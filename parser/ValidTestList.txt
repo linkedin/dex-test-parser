@@ -1,0 +1,14 @@
+com.linkedin.parser.test.junit3.java.JUnit3ActivityInstrumentationTestCase2#testJUnit3ActivityInstrumentationTestCase2
+com.linkedin.parser.test.junit3.java.JUnit3Basic#testJUnit3Basic
+com.linkedin.parser.test.junit3.java.JUnit3InstrumentationTestCase#testJUnit3InstrumentationTestCase
+com.linkedin.parser.test.junit3.java.JUnit3TestInsideStaticInnerClass#testJUnit3TestInsideStaticInnerClass
+com.linkedin.parser.test.junit3.java.JUnit3WithAnnotations#testJUnit3WithAnnotations
+com.linkedin.parser.test.junit3.kotlin.KotlinJUnit3AndroidTestCase#testKotlinJUnit3AndroidTestCase
+com.linkedin.parser.test.junit3.kotlin.KotlinJUnit3TestInsideStaticInnerClass$InnerClass#testKotlinJUnit3TestInsideStaticInnerClass
+com.linkedin.parser.test.junit3.kotlin.KotlinJUnit3WithAnnotations#testKotlinJUnit3WithAnnotations
+com.linkedin.parser.test.junit4.java.BasicJUnit4#basicJUnit4
+com.linkedin.parser.test.junit4.java.JUnit4ClassInsideInterface$InnerClass#innerClassTest
+com.linkedin.parser.test.junit4.java.JUnit4TestInsideStaticInnerClass$InnerClass#innerClassTest
+com.linkedin.parser.test.junit4.kotlin.KotlinJUnit4Basic#testKotlinJUnit4Basic
+com.linkedin.parser.test.junit4.kotlin.KotlinJUnit4TestInsideStaticInnerClass$InnerClass#testKotlinJUnit4TestInsideStaticInnerClass
+com.linkedin.parser.test.junit4.kotlin.KotlinJUnit4WithAnnotations#testKotlinJUnit4WithAnnotations
