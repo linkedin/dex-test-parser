@@ -13,7 +13,7 @@ data class EncodedArray(
     companion object {
         fun create(byteBuffer: ByteBuffer): EncodedArray {
             val size = Leb128.readUnsignedLeb128(byteBuffer)
-            val values = Array(size, { index -> EncodedValue(byteBuffer) })
+            val values = Array(size, { EncodedValue(byteBuffer) })
             return EncodedArray(size, values)
         }
     }

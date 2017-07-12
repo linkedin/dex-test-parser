@@ -24,10 +24,10 @@ data class ClassDataItem(
             val instanceFieldsSize = Leb128.readUnsignedLeb128(byteBuffer)
             val directMethodsSize = Leb128.readUnsignedLeb128(byteBuffer)
             val virtualMethodsSize = Leb128.readUnsignedLeb128(byteBuffer)
-            val staticFields = Array(staticFieldsSize, { index -> EncodedField(byteBuffer) })
-            val instanceFields = Array(instanceFieldsSize, { index -> EncodedField(byteBuffer) })
-            val directMethods = Array(directMethodsSize, { index -> EncodedMethod(byteBuffer) })
-            val virtualMethods = Array(virtualMethodsSize, { index -> EncodedMethod(byteBuffer) })
+            val staticFields = Array(staticFieldsSize, { EncodedField(byteBuffer) })
+            val instanceFields = Array(instanceFieldsSize, { EncodedField(byteBuffer) })
+            val directMethods = Array(directMethodsSize, { EncodedMethod(byteBuffer) })
+            val virtualMethods = Array(virtualMethodsSize, { EncodedMethod(byteBuffer) })
 
             return ClassDataItem(
                     staticFieldsSize,

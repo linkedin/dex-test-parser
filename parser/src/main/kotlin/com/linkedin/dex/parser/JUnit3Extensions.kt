@@ -7,6 +7,7 @@ package com.linkedin.dex.parser
 import com.linkedin.dex.spec.ClassDataItem
 import com.linkedin.dex.spec.ClassDefItem
 import com.linkedin.dex.spec.DexFile
+import com.linkedin.dex.spec.MethodIdItem
 
 /**
  * All of the classes that extend JUnit3's TestCase class and are included in the Android SDK.
@@ -36,11 +37,12 @@ private val defaultDescriptors = setOf(
  *
  * This function is O(n!), but in practice this is okay because test apks will have a very small number of DexFiles
  */
-fun findJUnit3Tests(dexFiles: List<DexFile>): Set<String> =
-        findJUnit3Tests(dexFiles, mutableSetOf(), defaultDescriptors.toMutableSet()).first
+fun findJUnit3Tests(dexFiles: List<DexFile>): Set<TestMethod> {
+    return findJUnit3Tests(dexFiles, mutableSetOf(), defaultDescriptors.toMutableSet()).first
+}
 
-private fun findJUnit3Tests(dexFiles: List<DexFile>, testNames: MutableSet<String>,
-                            descriptors: MutableSet<String>): Pair<MutableSet<String>, MutableSet<String>> {
+private fun findJUnit3Tests(dexFiles: List<DexFile>, testNames: MutableSet<TestMethod>,
+                            descriptors: MutableSet<String>): Pair<MutableSet<TestMethod>, MutableSet<String>> {
     // base case
     if (dexFiles.isEmpty()) {
         return Pair(testNames, descriptors)
@@ -60,22 +62,14 @@ private fun findJUnit3Tests(dexFiles: List<DexFile>, testNames: MutableSet<Strin
     return findJUnit3Tests(dexFiles.subList(0, dexFiles.lastIndex), testNames, descriptors)
 }
 
-private fun DexFile.findJUnit3Tests(descriptors: MutableSet<String>): List<String> {
-    val matchingItems: MutableList<String> = mutableListOf()
-
+private fun DexFile.findJUnit3Tests(descriptors: MutableSet<String>): List<TestMethod> {
     val testClasses = findClassesWithSuperClass(descriptors)
-    testClasses.map { Pair(it, findMethodNames(it)) }
-            .map { Pair(formatClassName(it.first), it.second) }
-            .filter { it.second.isNotEmpty() }
-            .map { Pair(it.first, it.second.filter { it.startsWith("test") }) }
-            .flatMap { pair -> pair.second.map { pair.first + it }.toCollection(mutableListOf()) }
-            .toCollection(matchingItems)
-
-    return matchingItems
+    return createTestMethods(testClasses, { classDef, _ -> findMethodIds(classDef) })
+            .filter { it.testName.contains("#test") }
 }
 
-private fun DexFile.findMethodNames(classDefItem: ClassDefItem): MutableList<String> {
-    val methodNames: MutableList<String> = mutableListOf()
+private fun DexFile.findMethodIds(classDefItem: ClassDefItem): MutableList<MethodIdItem> {
+    val methodIds = mutableListOf<MethodIdItem>()
     val testClassData = ClassDataItem.create(byteBuffer, classDefItem.classDataOff)
     var previousMethodIdxOff = 0
     testClassData.virtualMethods.forEachIndexed { index, encodedMethod ->
@@ -85,17 +79,15 @@ private fun DexFile.findMethodNames(classDefItem: ClassDefItem): MutableList<Str
         }
         previousMethodIdxOff = methodIdxOff
 
-        val methodIdItem = methodIds[methodIdxOff]
-        val methodName = ParseUtils.parseMethodName(byteBuffer, stringIds, methodIdItem)
-        methodNames.add(methodName)
+        methodIds.add(this.methodIds[methodIdxOff])
     }
-    return methodNames
+    return methodIds
 }
 
 // From the docs:
 // The classes must be ordered such that a given class's superclass and
 // implemented interfaces appear in the list earlier than the referring class
-fun DexFile.findClassesWithSuperClass(targetDescriptors: MutableSet<String>): List<ClassDefItem> {
+private fun DexFile.findClassesWithSuperClass(targetDescriptors: MutableSet<String>): List<ClassDefItem> {
     val matchingClasses: MutableList<ClassDefItem> = mutableListOf()
 
     classDefs.forEach { classDefItem ->

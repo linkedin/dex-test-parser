@@ -23,9 +23,9 @@ data class AnnotationsDirectoryItem(
             val fieldsSize = byteBuffer.int
             val annotatedMethodsSize = byteBuffer.int
             val annotatedParametersSize = byteBuffer.int
-            val fieldAnnotations = Array(fieldsSize, { index -> FieldAnnotation(byteBuffer) })
-            val methodAnnotations = Array(annotatedMethodsSize, { index -> MethodAnnotation(byteBuffer) })
-            val parameterAnnotations = Array(annotatedParametersSize, { index -> ParameterAnnotation(byteBuffer) })
+            val fieldAnnotations = Array(fieldsSize, { FieldAnnotation(byteBuffer) })
+            val methodAnnotations = Array(annotatedMethodsSize, { MethodAnnotation(byteBuffer) })
+            val parameterAnnotations = Array(annotatedParametersSize, { ParameterAnnotation(byteBuffer) })
             return AnnotationsDirectoryItem(
                     classAnnotationsOff,
                     fieldsSize,

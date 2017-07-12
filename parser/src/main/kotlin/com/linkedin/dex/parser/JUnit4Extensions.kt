@@ -5,67 +5,30 @@
 package com.linkedin.dex.parser
 
 import com.linkedin.dex.spec.ACC_INTERFACE
-import com.linkedin.dex.spec.AnnotationItem
-import com.linkedin.dex.spec.AnnotationSetItem
 import com.linkedin.dex.spec.AnnotationsDirectoryItem
 import com.linkedin.dex.spec.ClassDefItem
 import com.linkedin.dex.spec.DexFile
-import com.linkedin.dex.spec.MethodAnnotation
+import com.linkedin.dex.spec.MethodIdItem
 
 
 /**
  * Find all methods that are annotated with JUnit4's @Test annotation
  */
-fun DexFile.findJUnit4Tests(): List<String> {
-    val testAnnotationDescriptor = "Lorg/junit/Test;"
-    val matchingItems: MutableList<String> = mutableListOf()
+fun DexFile.findJUnit4Tests(): List<TestMethod> {
+    val testAnnotationName = "org.junit.Test"
+    val classesWithAnnotations = classDefs.filter(::hasAnnotations).filterNot(::isInterface)
 
-    classDefs.filter(::hasAnnotations)
-            .filterNot(::isInterface)
-            .map { Pair(it, AnnotationsDirectoryItem.create(byteBuffer, it.annotationsOff)) }
-            .map { Pair(it.first, it.second.methodAnnotations) }
-            .map { Pair(it.first, getMethodsWithAnnotation(it.second, testAnnotationDescriptor)) }
-            .filter { it.second.isNotEmpty() }
-            .map { Pair(formatClassName(it.first), it.second) }
-            .flatMap { pair -> pair.second.map { pair.first + it }.toCollection(mutableListOf()) }
-            .toCollection(matchingItems)
-
-    return matchingItems
+    return createTestMethods(classesWithAnnotations, findMethodIds())
+            .filter { it.annotationNames.contains(testAnnotationName) }
 }
 
-private fun hasAnnotations(classDefItem: ClassDefItem): Boolean {
-    return classDefItem.annotationsOff != 0
-}
-
-fun DexFile.formatClassName(classDefItem: ClassDefItem): String {
-    var className = ParseUtils.parseClassName(byteBuffer, classDefItem, typeIds, stringIds)
-    // strip off the "L" prefix
-    className = className.substring(1)
-    className = className.replace('/', '.')
-    // strip off the ";"
-    className = className.dropLast(1)
-    // the instrument command expects test class names and method names to be separated by a "#"
-    className += "#"
-
-    return className
+/**
+ * Find methodIds we care about: any method in the class which is annotated
+ */
+private fun DexFile.findMethodIds(): (ClassDefItem, AnnotationsDirectoryItem?) -> List<MethodIdItem> {
+    return { _, directory -> directory?.methodAnnotations?.map { methodIds[it.methodIdx] } ?: emptyList() }
 }
 
 private fun isInterface(classDefItem: ClassDefItem): Boolean {
     return classDefItem.accessFlags and ACC_INTERFACE == ACC_INTERFACE
-}
-
-private fun DexFile.getMethodsWithAnnotation(annotations: Array<MethodAnnotation>, targetDescriptor: String): List<String> {
-    val matchingMethods: MutableList<String> = mutableListOf()
-    annotations.forEach { annotation ->
-        val setItem = AnnotationSetItem.create(byteBuffer, annotation.annotationsOff)
-        if (setItem.entries.any { entry ->
-            val item = AnnotationItem.create(byteBuffer, entry.annotationOff)
-            val descriptor = ParseUtils.parseDescriptor(byteBuffer, typeIds[item.encodedAnnotation.typeIdx], stringIds)
-            descriptor == targetDescriptor
-        }) {
-            val methodIdItem = methodIds[annotation.methodIdx]
-            matchingMethods.add(ParseUtils.parseMethodName(byteBuffer, stringIds, methodIdItem))
-        }
-    }
-    return matchingMethods
 }

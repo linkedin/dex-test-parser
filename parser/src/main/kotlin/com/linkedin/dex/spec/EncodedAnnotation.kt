@@ -15,7 +15,7 @@ data class EncodedAnnotation(
         fun create(byteBuffer: ByteBuffer): EncodedAnnotation {
             val typeIdx = Leb128.readUnsignedLeb128(byteBuffer)
             val size = Leb128.readUnsignedLeb128(byteBuffer)
-            val elements = Array(size, { index -> AnnotationElement(byteBuffer) })
+            val elements = Array(size, { AnnotationElement(byteBuffer) })
             return EncodedAnnotation(typeIdx, size, elements)
         }
     }
