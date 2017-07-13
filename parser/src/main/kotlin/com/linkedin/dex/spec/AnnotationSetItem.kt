@@ -15,7 +15,7 @@ data class AnnotationSetItem(
             byteBuffer.position(offset)
 
             val size = byteBuffer.int
-            val entries = Array(size, { index -> AnnotationOffItem(byteBuffer) })
+            val entries = Array(size, { AnnotationOffItem(byteBuffer) })
             return AnnotationSetItem(size, entries)
         }
     }

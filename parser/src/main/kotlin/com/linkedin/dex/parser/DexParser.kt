@@ -39,10 +39,20 @@ class DexParser private constructor() {
         }
 
         /**
-         * Parse the apk found at apkPath and returns the list of test names found in the apk
+         * Parse the apk found at [apkPath] and return the list of test names found in the apk
          */
         @JvmStatic fun findTestNames(apkPath: String): List<String> {
-            var allItems: List<String> = emptyList()
+            return findTestMethods(apkPath).map { it.testName }
+        }
+
+        /**
+         * Parse the apk found at [apkPath] and return a list of [TestMethod] objects containing the test names
+         * and their associated annotation names found in the apk. Note that class-level annotations are also
+         * included in the list of annotations for a given test and merged with the list of annotations that were
+         * explicitly applied to the test method.
+         */
+        @JvmStatic fun findTestMethods(apkPath: String): List<TestMethod> {
+            var allItems: List<TestMethod> = emptyList()
 
             val time = kotlin.system.measureTimeMillis {
                 val dexFiles = Companion.readDexFiles(apkPath)
@@ -94,6 +104,5 @@ class DexParser private constructor() {
                 }
             }
         }
-
     }
 }
