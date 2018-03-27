@@ -4,11 +4,7 @@
  */
 package com.linkedin.dex.parser
 
-import com.linkedin.dex.spec.ClassDefItem
-import com.linkedin.dex.spec.Leb128
-import com.linkedin.dex.spec.MethodIdItem
-import com.linkedin.dex.spec.StringIdItem
-import com.linkedin.dex.spec.TypeIdItem
+import com.linkedin.dex.spec.*
 import java.nio.ByteBuffer
 import java.util.ArrayList
 

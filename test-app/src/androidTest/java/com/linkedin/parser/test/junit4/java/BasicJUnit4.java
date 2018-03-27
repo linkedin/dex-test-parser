@@ -8,9 +8,11 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
+@TestValueAnnotation("Hello world!")
 public class BasicJUnit4 {
 
     @Test
+    @TestValueAnnotation("On a method")
     public void basicJUnit4() {
         assertTrue(true);
     }

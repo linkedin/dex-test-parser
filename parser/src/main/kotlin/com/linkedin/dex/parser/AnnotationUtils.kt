@@ -4,13 +4,7 @@
  */
 package com.linkedin.dex.parser
 
-import com.linkedin.dex.spec.AnnotationItem
-import com.linkedin.dex.spec.AnnotationSetItem
-import com.linkedin.dex.spec.AnnotationsDirectoryItem
-import com.linkedin.dex.spec.ClassDefItem
-import com.linkedin.dex.spec.DexFile
-import com.linkedin.dex.spec.MethodAnnotation
-import com.linkedin.dex.spec.MethodIdItem
+import com.linkedin.dex.spec.*
 
 /**
  * Check if there are any class, field, method, or parameter annotations in the given class
@@ -33,49 +27,72 @@ fun DexFile.getAnnotationsDirectory(classDefItem: ClassDefItem): AnnotationsDire
 }
 
 /**
- * @return A list of descriptors containing all class-level annotations in the given [AnnotationsDirectoryItem]
+ * @return a list of annotation objects containing all class-level annotations
  */
-fun DexFile.getClassAnnotationDescriptors(directory: AnnotationsDirectoryItem?): List<String> {
+fun DexFile.getClassAnnotationValues(directory: AnnotationsDirectoryItem?): List<TestAnnotation> {
     if (directory == null || directory.classAnnotationsOff == 0) {
         return emptyList()
     }
 
     val classAnnotationSetItem = AnnotationSetItem.create(byteBuffer, directory.classAnnotationsOff)
-    return classAnnotationSetItem.toDescriptorList(this)
-}
 
-/**
- * @return A list of descriptors containing all the method-level annotations on the given [MethodIdItem]
- */
-fun DexFile.getMethodAnnotationDescriptors(methodId: MethodIdItem,
-                                           annotationsDirectory: AnnotationsDirectoryItem?): List<String> {
-    // find the annotated method matching the given one, otherwise return an empty list
-    val methodAnnotations = annotationsDirectory?.methodAnnotations ?: emptyArray<MethodAnnotation>()
-    return methodAnnotations.filter { methodIds[it.methodIdx] == methodId }
-            .flatMap { (_, annotationsOff) ->
-                val methodAnnotationSetItem = AnnotationSetItem.create(byteBuffer, annotationsOff)
-                methodAnnotationSetItem.toDescriptorList(this)
+    val values = classAnnotationSetItem.entries.map { AnnotationItem.create(byteBuffer, it.annotationOff) }
+            .map {
+                val name = formatDescriptor(ParseUtils.parseDescriptor(byteBuffer,
+                    typeIds[it.encodedAnnotation.typeIdx], stringIds))
+                val encodedAnnotationValues = it.encodedAnnotation.elements
+                val values = HashMap<String, DecodedValue>()
+                for (encodedAnnotationValue in encodedAnnotationValues) {
+                    val value = DecodedValue.createFromDecodedValue(this, encodedAnnotationValue.value)
+                    byteBuffer.position(this.stringIds[encodedAnnotationValue.nameIdx].stringDataOff)
+                    val name = ParseUtils.parseStringBytes(byteBuffer)
+
+                    values.put(name, value)
+                }
+
+                TestAnnotation(name, values)
             }
+
+    return values
 }
 
 /**
- * Merge the given [methodAnnotationDescriptors] and [classAnnotationDescriptors] lists and format them as
- * human-readable names
+ * @return A list of annotation objects for all the method-level annotations
  */
-fun getAnnotationNames(methodAnnotationDescriptors: List<String>,
-                       classAnnotationDescriptors: List<String>): List<String> {
-    return methodAnnotationDescriptors
-            .plus(classAnnotationDescriptors)
-            .distinct()
-            .map(::formatDescriptor)
+fun DexFile.getMethodAnnotationValues(methodId: MethodIdItem, annotationsDirectory: AnnotationsDirectoryItem?): List<TestAnnotation> {
+    val methodAnnotations = annotationsDirectory?.methodAnnotations ?: emptyArray<MethodAnnotation>()
+    val annotationSets = methodAnnotations.filter { methodIds[it.methodIdx] == methodId }
+            .map { (_, annotationsOff) ->
+                AnnotationSetItem.create(byteBuffer, annotationsOff)
+            }
+
+
+    val allAnnotations = annotationSets.map {
+        it.entries.map { AnnotationItem.create(byteBuffer, it.annotationOff) }
+            .map {
+                val name = formatDescriptor(ParseUtils.parseDescriptor(byteBuffer,
+                        typeIds[it.encodedAnnotation.typeIdx], stringIds))
+                val encodedAnnotationValues = it.encodedAnnotation.elements
+                val values = HashMap<String, DecodedValue>()
+                for (encodedAnnotationValue in encodedAnnotationValues) {
+                    val value = DecodedValue.createFromDecodedValue(this, encodedAnnotationValue.value)
+                    byteBuffer.position(this.stringIds[encodedAnnotationValue.nameIdx].stringDataOff)
+                    val name = ParseUtils.parseStringBytes(byteBuffer)
+
+                    values.put(name, value)
+                }
+
+                TestAnnotation(name, values)
+            }
+    }
+
+    return allAnnotations.flatten()
 }
 
-private fun AnnotationSetItem.toDescriptorList(dexFile: DexFile): List<String> {
+private fun AnnotationSetItem.getEncodedAnnotations(dexFile: DexFile): List<EncodedAnnotation> {
     return entries
             .map { AnnotationItem.create(dexFile.byteBuffer, it.annotationOff) }
             .map { (_, encodedAnnotation) ->
-                ParseUtils.parseDescriptor(dexFile.byteBuffer,
-                        dexFile.typeIds[encodedAnnotation.typeIdx],
-                        dexFile.stringIds)
+                encodedAnnotation
             }
 }

@@ -10,7 +10,6 @@ import com.linkedin.dex.spec.ClassDefItem
 import com.linkedin.dex.spec.DexFile
 import com.linkedin.dex.spec.MethodIdItem
 
-
 /**
  * Find all methods that are annotated with JUnit4's @Test annotation
  */
@@ -19,7 +18,7 @@ fun DexFile.findJUnit4Tests(): List<TestMethod> {
     val classesWithAnnotations = classDefs.filter(::hasAnnotations).filterNot(::isInterface)
 
     return createTestMethods(classesWithAnnotations, findMethodIds())
-            .filter { it.annotationNames.contains(testAnnotationName) }
+            .filter { it.annotations.map { it.name }.contains(testAnnotationName) }
 }
 
 /**

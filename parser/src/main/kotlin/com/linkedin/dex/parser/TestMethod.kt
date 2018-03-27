@@ -9,7 +9,7 @@ import com.linkedin.dex.spec.ClassDefItem
 import com.linkedin.dex.spec.DexFile
 import com.linkedin.dex.spec.MethodIdItem
 
-data class TestMethod(val testName: String, val annotationNames: List<String>) : Comparable<TestMethod> {
+data class TestMethod(val testName: String, val annotations: List<TestAnnotation>) : Comparable<TestMethod> {
     override fun compareTo(other: TestMethod): Int = testName.compareTo(other.testName)
 }
 
@@ -27,25 +27,25 @@ fun DexFile.createTestMethods(
         val directory = getAnnotationsDirectory(classDef)
 
         // compute these outside the method loop to avoid duplicate work
-        val classAnnotationDescriptors = getClassAnnotationDescriptors(directory)
+        val classAnnotations = getClassAnnotationValues(directory)
 
         val methodIds = methodIdFinder.invoke(classDef, directory)
 
-        methodIds.map { createTestMethod(it, directory, classDef, classAnnotationDescriptors) }
+        methodIds.map { createTestMethod(it, directory, classDef, classAnnotations) }
     }
 }
 
 private fun DexFile.createTestMethod(methodId: MethodIdItem,
                                      directory: AnnotationsDirectoryItem?,
                                      classDef: ClassDefItem,
-                                     classAnnotationDescriptors: List<String>): TestMethod {
-    val methodAnnotationDescriptors = getMethodAnnotationDescriptors(methodId, directory)
+                                     classAnnotations: List<TestAnnotation>): TestMethod {
+    val methodAnnotationDescriptors = getMethodAnnotationValues(methodId, directory)
 
-    val annotationNames = getAnnotationNames(methodAnnotationDescriptors, classAnnotationDescriptors)
+    val annotations = classAnnotations.plus(methodAnnotationDescriptors)
 
     val className = formatClassName(classDef)
     val methodName = ParseUtils.parseMethodName(byteBuffer, stringIds, methodId)
     val testName = className + methodName
 
-    return TestMethod(testName, annotationNames)
+    return TestMethod(testName, annotations)
 }
