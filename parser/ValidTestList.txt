@@ -7,6 +7,7 @@ com.linkedin.parser.test.junit3.kotlin.KotlinJUnit3AndroidTestCase#testKotlinJUn
 com.linkedin.parser.test.junit3.kotlin.KotlinJUnit3TestInsideStaticInnerClass$InnerClass#testKotlinJUnit3TestInsideStaticInnerClass
 com.linkedin.parser.test.junit3.kotlin.KotlinJUnit3WithAnnotations#testKotlinJUnit3WithAnnotations
 com.linkedin.parser.test.junit4.java.BasicJUnit4#basicJUnit4
+com.linkedin.parser.test.junit4.java.BasicJUnit4#basicJunit4Second
 com.linkedin.parser.test.junit4.java.JUnit4ClassInsideInterface$InnerClass#innerClassTest
 com.linkedin.parser.test.junit4.java.JUnit4TestInsideStaticInnerClass$InnerClass#innerClassTest
 com.linkedin.parser.test.junit4.kotlin.KotlinJUnit4Basic#testKotlinJUnit4Basic

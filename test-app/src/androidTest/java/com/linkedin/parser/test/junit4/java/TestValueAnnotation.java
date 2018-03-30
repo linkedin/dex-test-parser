@@ -16,5 +16,21 @@ import java.lang.annotation.Target;
 public @interface TestValueAnnotation {
 
     @NonNull
-    String value();
+    String stringValue() default "";
+
+    int intValue() default 0;
+
+    boolean boolValue() default false;
+
+    long longValue() default 0L;
+
+    float floatValue() default 0f;
+
+    double doubleValue() default 0f;
+
+    byte byteValue() default 0;
+
+    char charValue() default 0;
+
+    short shortValue() default 0;
 }

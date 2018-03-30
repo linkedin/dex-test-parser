@@ -57,8 +57,8 @@ sealed class EncodedValue {
                 VALUE_CHAR -> return EncodedChar(getPaddedBuffer(byteBuffer, sizeOf(valueArg), 2).char)
                 VALUE_INT -> return EncodedInt(getPaddedBuffer(byteBuffer, sizeOf(valueArg), 4).int)
                 VALUE_LONG -> return EncodedLong(getPaddedBuffer(byteBuffer, sizeOf(valueArg), 8).long)
-                VALUE_FLOAT -> return EncodedFloat(getPaddedBuffer(byteBuffer, sizeOf(valueArg), 4).float)
-                VALUE_DOUBLE -> return EncodedDouble(getPaddedBuffer(byteBuffer, sizeOf(valueArg), 8).double)
+                VALUE_FLOAT -> return EncodedFloat(getPaddedBufferToTheRight(byteBuffer, sizeOf(valueArg), 4).float)
+                VALUE_DOUBLE -> return EncodedDouble(getPaddedBufferToTheRight(byteBuffer, sizeOf(valueArg), 8).double)
                 VALUE_STRING -> return EncodedString(getPaddedBuffer(byteBuffer, sizeOf(valueArg), 4).int)
                 VALUE_TYPE -> return EncodedType(getPaddedBuffer(byteBuffer, sizeOf(valueArg), 4).int)
                 VALUE_FIELD -> return EncodedField(getPaddedBuffer(byteBuffer, sizeOf(valueArg), 4).int)
@@ -95,6 +95,29 @@ sealed class EncodedValue {
             for (x in size+1..fullSize) {
                 buffer.put(0)
             }
+
+            // Move to the start of the buffer so we can read values
+            buffer.position(0)
+
+            return buffer
+        }
+
+        // For float and double values, the value is padded to the right, so we need to build the buffer in the
+        // opposite order
+        private fun getPaddedBufferToTheRight(byteBuffer: ByteBuffer, size: Int, fullSize: Int): ByteBuffer {
+            val buffer = ByteBuffer.allocate(fullSize)
+            buffer.order(ByteOrder.LITTLE_ENDIAN)
+
+            for (x in size+1..fullSize) {
+                buffer.put(0)
+            }
+
+            var i = 0
+            while (i < size) {
+                i++
+                buffer.put(byteBuffer.get())
+            }
+
 
             // Move to the start of the buffer so we can read values
             buffer.position(0)
