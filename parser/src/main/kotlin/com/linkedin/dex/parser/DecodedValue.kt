@@ -1,6 +1,8 @@
 package com.linkedin.dex.parser
 
 import com.linkedin.dex.spec.DexFile
+import com.linkedin.dex.spec.EncodedAnnotation
+import com.linkedin.dex.spec.EncodedArray
 import com.linkedin.dex.spec.EncodedValue
 import com.linkedin.dex.spec.Leb128
 
@@ -20,14 +22,20 @@ sealed class DecodedValue {
     data class DecodedString(val value: String) : DecodedValue()
 
     data class DecodedType(val value: String) : DecodedValue()
-    class DecodedNull : DecodedValue()
+    object DecodedNull : DecodedValue()
     data class DecodedBoolean(val value: Boolean) : DecodedValue()
+    // TODO: DecodedType
+    // TODO: DecodedField
+    // TODO: DecodedMethod
+    // TODO: DecodedEnum
+    // TODO: DecodedArrayValue
+    // TODO: DecodedAnnotationValue
     
     companion object {
         /**
          * Resolve an encoded value against the given dexfile
          */
-        fun createFromDecodedValue(dexFile: DexFile, encodedValue: EncodedValue): DecodedValue {
+        fun create(dexFile: DexFile, encodedValue: EncodedValue): DecodedValue {
             when (encodedValue) {
                 is EncodedValue.EncodedByte -> return DecodedByte(encodedValue.value)
                 is EncodedValue.EncodedShort -> return DecodedShort(encodedValue.value)
@@ -49,9 +57,9 @@ sealed class DecodedValue {
                     return DecodedType(ParseUtils.parseStringBytes(dexFile.byteBuffer))
                 }
                 is EncodedValue.EncodedBoolean -> return DecodedBoolean(encodedValue.value)
-                is EncodedValue.EncodedNull -> return DecodedNull()
+                is EncodedValue.EncodedNull -> return DecodedNull
 
-                else -> return DecodedNull()
+                else -> return DecodedNull
             }
         }
     }

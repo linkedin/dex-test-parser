@@ -18,7 +18,9 @@ fun DexFile.findJUnit4Tests(): List<TestMethod> {
     val classesWithAnnotations = classDefs.filter(::hasAnnotations).filterNot(::isInterface)
 
     return createTestMethods(classesWithAnnotations, findMethodIds())
-            .filter { it.annotations.map { it.name }.contains(testAnnotationName) }
+            .filter { it.annotations.map {
+                it.name
+            }.contains(testAnnotationName) }
 }
 
 /**

@@ -23,7 +23,7 @@ sealed class EncodedValue {
     data class EncodedEnum(val value: Int): EncodedValue()
     data class EncodedArrayValue(val value: EncodedArray): EncodedValue()
     data class EncodedAnnotationValue(val value: EncodedAnnotation): EncodedValue()
-    class EncodedNull: EncodedValue()
+    object EncodedNull: EncodedValue()
     data class EncodedBoolean(val value: Boolean): EncodedValue()
     companion object {
         val VALUE_BYTE: Byte = 0x00
@@ -43,7 +43,7 @@ sealed class EncodedValue {
         val VALUE_NULL: Byte = 0x1e
         val VALUE_BOOLEAN: Byte = 0x1f
 
-        fun getEncodedValue(byteBuffer: ByteBuffer): EncodedValue {
+        fun create(byteBuffer: ByteBuffer): EncodedValue {
             val argAndType = byteBuffer.get().toInt()
 
             // first three bits are the optional valueArg
@@ -66,7 +66,7 @@ sealed class EncodedValue {
                 VALUE_ENUM -> return EncodedEnum(getPaddedBuffer(byteBuffer, sizeOf(valueArg), 4).int)
                 VALUE_ARRAY -> return EncodedArrayValue(EncodedArray.create(byteBuffer))
                 VALUE_ANNOTATION -> return EncodedAnnotationValue(EncodedAnnotation.create(byteBuffer))
-                VALUE_NULL -> return EncodedNull()
+                VALUE_NULL -> return EncodedNull
                 VALUE_BOOLEAN -> return EncodedBoolean(valueArg.toInt() == 1)
                 else -> {
                     throw DexException("Bad value type: " + valueType)
@@ -74,10 +74,16 @@ sealed class EncodedValue {
             }
         }
 
+        // The size of the field is generall represented as 1 more than the value of the first byte
+        // See https://source.android.com/devices/tech/dalvik/dex-format#encoding
         private fun sizeOf(valueArg: Byte): Int {
             return valueArg + 1
         }
 
+        // In the dex format, when a value can be represented with less than the bytes defined by its type (ex, an Int
+        // that can be represented in only 1 byte), then it does not pad the extra bytes
+        // ByteBuffer makes parsing bytes nice since it handles endianness and other small issues, so we can just create
+        // a buffer and fill in the extra bits not specified in the file to fill the appropriate size for the type
         private fun getPaddedBuffer(byteBuffer: ByteBuffer, size: Int, fullSize: Int): ByteBuffer {
             val buffer = ByteBuffer.allocate(fullSize)
             buffer.order(ByteOrder.LITTLE_ENDIAN)
@@ -86,7 +92,7 @@ sealed class EncodedValue {
                 i++
                 buffer.put(byteBuffer.get())
             }
-            for (i in size+1..fullSize) {
+            for (x in size+1..fullSize) {
                 buffer.put(0)
             }
 

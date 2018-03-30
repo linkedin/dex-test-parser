@@ -4,7 +4,14 @@
  */
 package com.linkedin.dex.parser
 
-import com.linkedin.dex.spec.*
+import com.linkedin.dex.spec.AnnotationItem
+import com.linkedin.dex.spec.AnnotationSetItem
+import com.linkedin.dex.spec.AnnotationsDirectoryItem
+import com.linkedin.dex.spec.ClassDefItem
+import com.linkedin.dex.spec.DexFile
+import com.linkedin.dex.spec.MethodAnnotation
+import com.linkedin.dex.spec.MethodIdItem
+
 
 /**
  * Check if there are any class, field, method, or parameter annotations in the given class
@@ -36,24 +43,7 @@ fun DexFile.getClassAnnotationValues(directory: AnnotationsDirectoryItem?): List
 
     val classAnnotationSetItem = AnnotationSetItem.create(byteBuffer, directory.classAnnotationsOff)
 
-    val values = classAnnotationSetItem.entries.map { AnnotationItem.create(byteBuffer, it.annotationOff) }
-            .map {
-                val name = formatDescriptor(ParseUtils.parseDescriptor(byteBuffer,
-                    typeIds[it.encodedAnnotation.typeIdx], stringIds))
-                val encodedAnnotationValues = it.encodedAnnotation.elements
-                val values = HashMap<String, DecodedValue>()
-                for (encodedAnnotationValue in encodedAnnotationValues) {
-                    val value = DecodedValue.createFromDecodedValue(this, encodedAnnotationValue.value)
-                    byteBuffer.position(this.stringIds[encodedAnnotationValue.nameIdx].stringDataOff)
-                    val name = ParseUtils.parseStringBytes(byteBuffer)
-
-                    values.put(name, value)
-                }
-
-                TestAnnotation(name, values)
-            }
-
-    return values
+    return classAnnotationSetItem.entries.map { AnnotationItem.create(byteBuffer, it.annotationOff) }.map { getTestAnnotation(it) }
 }
 
 /**
@@ -66,33 +56,22 @@ fun DexFile.getMethodAnnotationValues(methodId: MethodIdItem, annotationsDirecto
                 AnnotationSetItem.create(byteBuffer, annotationsOff)
             }
 
-
-    val allAnnotations = annotationSets.map {
-        it.entries.map { AnnotationItem.create(byteBuffer, it.annotationOff) }
-            .map {
-                val name = formatDescriptor(ParseUtils.parseDescriptor(byteBuffer,
-                        typeIds[it.encodedAnnotation.typeIdx], stringIds))
-                val encodedAnnotationValues = it.encodedAnnotation.elements
-                val values = HashMap<String, DecodedValue>()
-                for (encodedAnnotationValue in encodedAnnotationValues) {
-                    val value = DecodedValue.createFromDecodedValue(this, encodedAnnotationValue.value)
-                    byteBuffer.position(this.stringIds[encodedAnnotationValue.nameIdx].stringDataOff)
-                    val name = ParseUtils.parseStringBytes(byteBuffer)
-
-                    values.put(name, value)
-                }
-
-                TestAnnotation(name, values)
-            }
-    }
-
-    return allAnnotations.flatten()
+    return annotationSets.map {
+        it.entries.map { AnnotationItem.create(byteBuffer, it.annotationOff) }.map { getTestAnnotation(it)}
+    }.flatten()
 }
 
-private fun AnnotationSetItem.getEncodedAnnotations(dexFile: DexFile): List<EncodedAnnotation> {
-    return entries
-            .map { AnnotationItem.create(dexFile.byteBuffer, it.annotationOff) }
-            .map { (_, encodedAnnotation) ->
-                encodedAnnotation
-            }
+fun DexFile.getTestAnnotation(annotationItem: AnnotationItem): TestAnnotation {
+    val name = formatDescriptor(ParseUtils.parseDescriptor(byteBuffer,
+            typeIds[annotationItem.encodedAnnotation.typeIdx], stringIds))
+    val encodedAnnotationValues = annotationItem.encodedAnnotation.elements
+    val values = mutableMapOf<String, DecodedValue>()
+    for (encodedAnnotationValue in encodedAnnotationValues) {
+        val value = DecodedValue.create(this, encodedAnnotationValue.value)
+        val valueName = ParseUtils.parseValueName(byteBuffer, stringIds, encodedAnnotationValue.nameIdx)
+
+        values.put(valueName, value)
+    }
+
+    return TestAnnotation(name, values)
 }

@@ -37,6 +37,15 @@ object ParseUtils {
         return encodedName
     }
 
+    fun parseValueName(byteBuffer: ByteBuffer, stringIds: Array<StringIdItem>, nameIdx: Int): String {
+        val stringId = stringIds[nameIdx]
+        byteBuffer.position(stringId.stringDataOff)
+        // read past unused size item
+        Leb128.readUnsignedLeb128(byteBuffer)
+        val encodedName = parseStringBytes(byteBuffer)
+        return encodedName
+    }
+
     fun parseStringBytes(byteBuffer: ByteBuffer): String {
         val byteList = ArrayList<Byte>()
         do {
