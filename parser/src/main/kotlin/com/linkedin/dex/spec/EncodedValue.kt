@@ -74,7 +74,7 @@ sealed class EncodedValue {
             }
         }
 
-        // The size of the field is generall represented as 1 more than the value of the first byte
+        // The size of the field is generaly represented as 1 more than the value of the first byte
         // See https://source.android.com/devices/tech/dalvik/dex-format#encoding
         private fun sizeOf(valueArg: Byte): Int {
             return valueArg + 1

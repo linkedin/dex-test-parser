@@ -26,7 +26,7 @@ public @interface TestValueAnnotation {
 
     float floatValue() default 0f;
 
-    double doubleValue() default 0f;
+    double doubleValue() default 0d;
 
     byte byteValue() default 0;
 

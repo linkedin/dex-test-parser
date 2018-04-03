@@ -3,11 +3,9 @@ package com.linkedin.dex
 import com.linkedin.dex.parser.DecodedValue
 import com.linkedin.dex.parser.DexParser
 import com.linkedin.dex.parser.TestMethod
-import org.junit.Assert
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Test
-import java.nio.file.Paths
-import java.util.logging.Level
-import java.util.logging.Logger
 
 class DexParserShould {
     companion object {
@@ -17,21 +15,20 @@ class DexParserShould {
     @Test
     fun parseCorrectNumberOfTestMethods() {
         val testMethods = DexParser.findTestNames(APK_PATH)
-        Logger.getGlobal().log(Level.SEVERE, Paths.get("").toAbsolutePath().toString())
 
-        Assert.assertEquals(15, testMethods.size)
+        assertEquals(15, testMethods.size)
     }
 
     @Test
     fun parseMethodWithMultipleMethodAnnotations() {
         val testMethods = DexParser.findTestMethods(APK_PATH).filter { it.annotations.filter { it.name.contains("TestValueAnnotation") }.isNotEmpty() }
 
-        Assert.assertEquals(2, testMethods.size)
+        assertEquals(2, testMethods.size)
 
         val method = testMethods.first()
-        Assert.assertEquals(method.testName, "com.linkedin.parser.test.junit4.java.BasicJUnit4#basicJUnit4")
+        assertEquals(method.testName, "com.linkedin.parser.test.junit4.java.BasicJUnit4#basicJUnit4")
         // TestValueAnnotation at the class level, Test annotation at the method level, and TestValueAnnotation at the method level
-        Assert.assertEquals(method.annotations.size, 3)
+        assertEquals(method.annotations.size, 3)
     }
 
     @Test
@@ -41,7 +38,7 @@ class DexParserShould {
 
         val classAnnotation = valueAnnotations.first()
         val stringValue = classAnnotation.values["stringValue"]
-        Assert.assertNotNull(stringValue)
+        assertNotNull(stringValue)
         assertMatches(stringValue, "Hello world!")
 
         val methodAnnotation = valueAnnotations[1]
@@ -144,10 +141,10 @@ class DexParserShould {
     private fun getBasicJunit4TestMethod(): TestMethod {
         val testMethods = DexParser.findTestMethods(APK_PATH).filter { it.annotations.filter { it.name.contains("TestValueAnnotation") }.isNotEmpty() }.filter { it.testName.equals("com.linkedin.parser.test.junit4.java.BasicJUnit4#basicJUnit4") }
 
-        Assert.assertEquals(1, testMethods.size)
+        assertEquals(1, testMethods.size)
 
         val method = testMethods.first()
-        Assert.assertEquals(method.testName, "com.linkedin.parser.test.junit4.java.BasicJUnit4#basicJUnit4")
+        assertEquals(method.testName, "com.linkedin.parser.test.junit4.java.BasicJUnit4#basicJUnit4")
 
         return method
     }
@@ -155,10 +152,10 @@ class DexParserShould {
     private fun getSecondBasicJunit4TestMethod(): TestMethod {
         val testMethods = DexParser.findTestMethods(APK_PATH).filter { it.annotations.filter { it.name.contains("TestValueAnnotation") }.isNotEmpty() }.filter { it.testName.equals("com.linkedin.parser.test.junit4.java.BasicJUnit4#basicJUnit4Second") }
 
-        Assert.assertEquals(1, testMethods.size)
+        assertEquals(1, testMethods.size)
 
         val method = testMethods.first()
-        Assert.assertEquals(method.testName, "com.linkedin.parser.test.junit4.java.BasicJUnit4#basicJUnit4Second")
+        assertEquals(method.testName, "com.linkedin.parser.test.junit4.java.BasicJUnit4#basicJUnit4Second")
 
         return method
     }
@@ -166,7 +163,7 @@ class DexParserShould {
     // region value type matchers
     private fun assertMatches(value: DecodedValue?, string: String) {
         if (value is DecodedValue.DecodedString) {
-            Assert.assertEquals(string, value.value)
+            assertEquals(string, value.value)
         } else {
             throw Exception("Value was not a string type")
         }
@@ -174,7 +171,7 @@ class DexParserShould {
 
     private fun assertMatches(value: DecodedValue?, number: Int) {
         if (value is DecodedValue.DecodedInt) {
-            Assert.assertEquals(number, value.value)
+            assertEquals(number, value.value)
         } else {
             throw Exception("Value was not an int type")
         }
@@ -182,7 +179,7 @@ class DexParserShould {
 
     private fun assertMatches(value: DecodedValue?, bool: Boolean) {
         if (value is DecodedValue.DecodedBoolean) {
-            Assert.assertEquals(bool, value.value)
+            assertEquals(bool, value.value)
         } else {
             throw Exception("Value was not a boolean type")
         }
@@ -190,7 +187,7 @@ class DexParserShould {
 
     private fun assertMatches(value: DecodedValue?, long: Long) {
         if (value is DecodedValue.DecodedLong) {
-            Assert.assertEquals(long, value.value)
+            assertEquals(long, value.value)
         } else {
             throw Exception("Value was not a long type")
         }
@@ -198,7 +195,7 @@ class DexParserShould {
 
     private fun assertMatches(value: DecodedValue?, float: Float) {
         if (value is DecodedValue.DecodedFloat) {
-            Assert.assertEquals(float, value.value)
+            assertEquals(float, value.value)
         } else {
             throw Exception("Value was not a float type")
         }
@@ -206,7 +203,7 @@ class DexParserShould {
 
     private fun assertMatches(value: DecodedValue?, double: Double) {
         if (value is DecodedValue.DecodedDouble) {
-            Assert.assertEquals(double, value.value, 0.0)
+            assertEquals(double, value.value, 0.0)
         } else {
             throw Exception("Value was not a double type")
         }
@@ -214,7 +211,7 @@ class DexParserShould {
 
     private fun assertMatches(value: DecodedValue?, byte: Byte) {
         if (value is DecodedValue.DecodedByte) {
-            Assert.assertEquals(byte, value.value)
+            assertEquals(byte, value.value)
         } else {
             throw Exception("Value was not a byte type")
         }
@@ -222,7 +219,7 @@ class DexParserShould {
 
     private fun assertMatches(value: DecodedValue?, char: Char) {
         if (value is DecodedValue.DecodedChar) {
-            Assert.assertEquals(char, value.value)
+            assertEquals(char, value.value)
         } else {
             throw Exception("Value was not a char type")
         }
@@ -230,7 +227,7 @@ class DexParserShould {
 
     private fun assertMatches(value: DecodedValue?, short: Short) {
         if (value is DecodedValue.DecodedShort) {
-            Assert.assertEquals(short, value.value)
+            assertEquals(short, value.value)
         } else {
             throw Exception("Value was not a short type")
         }
