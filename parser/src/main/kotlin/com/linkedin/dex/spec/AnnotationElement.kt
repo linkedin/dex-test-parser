@@ -12,6 +12,6 @@ data class AnnotationElement(
 ) {
     constructor(byteBuffer: ByteBuffer) : this(
             nameIdx = Leb128.readUnsignedLeb128(byteBuffer),
-            value = EncodedValue(byteBuffer)
+            value = EncodedValue.create(byteBuffer)
     )
 }

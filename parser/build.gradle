@@ -95,3 +95,13 @@ task testParsing(dependsOn: ':test-app:assembleDebugAndroidTest', type: JavaExec
     }
 }
 check.dependsOn testParsing
+
+// Configure the jvm tests so that apk will be present and in a consistent location
+// When you run from the IDE, the working directory is different than when running through gradle
+// To make sure we can run tests from either the IDE or gradle directly, we set it to be the same as IDE settings
+// We also need to make sure the test apk is generated as part of the compile task, so the tests have their
+// dependencies fulfilled
+testClasses.dependsOn ':test-app:assembleDebugAndroidTest'
+test {
+    workingDir project.getRootProject().getProjectDir()
+}
