@@ -35,6 +35,5 @@ data class DexMagic(
             }
         }
         throw DexException("Invalid dexMagic:\n" + this + "\n")
-
     }
 }
