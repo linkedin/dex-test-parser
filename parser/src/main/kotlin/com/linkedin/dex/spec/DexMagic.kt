@@ -21,13 +21,13 @@ data class DexMagic(
     )
 
     fun validate() {
-        val finalVersionValue = listOf(0x35, 0x37, 0x38)
+        val finalVersionValues = listOf(0x35, 0x37, 0x38)
 
-        finalVersionValue.forEach {
+        finalVersionValues.forEach { version ->
             val expectedMagic = DexMagic(
                     dex = listOf(0x64, 0x65, 0x78),
                     newline = 0xA,
-                    version = listOf(0x30, 0x33, it.toByte()),
+                    version = listOf(0x30, 0x33, version.toByte()),
                     zero = 0x00
             )
             if (this == expectedMagic) {
