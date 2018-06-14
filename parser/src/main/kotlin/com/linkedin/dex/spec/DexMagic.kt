@@ -21,14 +21,19 @@ data class DexMagic(
     )
 
     fun validate() {
-        val expectedMagic = DexMagic(
-                dex = listOf(0x64, 0x65, 0x78),
-                newline = 0xA,
-                version = listOf(0x30, 0x33, 0x35),
-                zero = 0x00
-        )
-        if (this != expectedMagic) {
-            throw DexException("Invalid dexMagic:\n" + this + "\n" + expectedMagic)
+        val finalVersionValues = listOf(0x35, 0x37, 0x38)
+
+        finalVersionValues.forEach { version ->
+            val expectedMagic = DexMagic(
+                    dex = listOf(0x64, 0x65, 0x78),
+                    newline = 0xA,
+                    version = listOf(0x30, 0x33, version.toByte()),
+                    zero = 0x00
+            )
+            if (this == expectedMagic) {
+                return
+            }
         }
+        throw DexException("Invalid dexMagic:\n" + this + "\n")
     }
 }
