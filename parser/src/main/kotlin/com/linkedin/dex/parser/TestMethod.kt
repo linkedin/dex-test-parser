@@ -24,15 +24,26 @@ fun DexFile.createTestMethods(
         classes: List<ClassDefItem>,
         methodIdFinder: (ClassDefItem, AnnotationsDirectoryItem?) -> List<MethodIdItem>): List<TestMethod> {
     return classes.flatMap { classDef ->
-        val directory = getAnnotationsDirectory(classDef)
-
-        // compute these outside the method loop to avoid duplicate work
-        val classAnnotations = getClassAnnotationValues(directory)
-
-        val methodIds = methodIdFinder.invoke(classDef, directory)
-
-        methodIds.map { createTestMethod(it, directory, classDef, classAnnotations) }
+        createTestMethods(classDef, methodIdFinder)
     }
+}
+
+/**
+ * Create the list of [TestMethod] contained in the given class
+ *
+ * @param [classDef] The class to search for tests
+ * @param [methodIdFinder] a function to determine which methods to consider as potential tests (varies between
+ *                         JUnit3 and JUnit 4)
+ */
+fun DexFile.createTestMethods(classDef: ClassDefItem, methodIdFinder: (ClassDefItem, AnnotationsDirectoryItem?) -> List<MethodIdItem>): List<TestMethod> {
+    val directory = getAnnotationsDirectory(classDef)
+
+    // compute these outside the method loop to avoid duplicate work
+    val classAnnotations = getClassAnnotationValues(directory)
+
+    val methodIds = methodIdFinder.invoke(classDef, directory)
+
+    return methodIds.map { createTestMethod(it, directory, classDef, classAnnotations) }
 }
 
 private fun DexFile.createTestMethod(methodId: MethodIdItem,

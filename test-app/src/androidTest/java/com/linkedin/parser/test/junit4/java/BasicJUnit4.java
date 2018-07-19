@@ -9,7 +9,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 
 @TestValueAnnotation(stringValue = "Hello world!")
-public class BasicJUnit4 {
+public class BasicJUnit4 extends ConcreteTest {
 
     @Test
     @TestValueAnnotation(stringValue = "On a method", intValue = 12345, boolValue = true, longValue = 56789L)
