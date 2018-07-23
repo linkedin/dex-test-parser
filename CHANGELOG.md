@@ -1,6 +1,7 @@
 # Change Log
 
-## Version 2.0
+## Version 2.0.0-SNAPSHOT
+
 - Support finding superclass methods annotated with @Test for JUnit4 tests. Breaking change
 to the Java interface for finding JUnit4 tests
 
