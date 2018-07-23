@@ -54,18 +54,12 @@ class DexParser private constructor() {
         @JvmStatic fun findTestMethods(apkPath: String): List<TestMethod> {
             var allItems: List<TestMethod> = emptyList()
 
-            val time = kotlin.system.measureTimeMillis {
-                val dexFiles = Companion.readDexFiles(apkPath)
+            val dexFiles = Companion.readDexFiles(apkPath)
 
-                val junit3Items = findJUnit3Tests(dexFiles).sorted()
-                val junit4Items = findAllJunit4Tests(dexFiles).sorted()
+            val junit3Items = findJUnit3Tests(dexFiles).sorted()
+            val junit4Items = findAllJUnit4Tests(dexFiles).sorted()
 
-                allItems = junit3Items.plus(junit4Items).sorted()
-
-                val count = allItems.count()
-                println("Found $count fully qualified test methods")
-            }
-            println("Finished in $time ms")
+            allItems = junit3Items.plus(junit4Items).sorted()
 
             return allItems
         }

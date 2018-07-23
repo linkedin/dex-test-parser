@@ -15,7 +15,7 @@ import com.linkedin.dex.spec.MethodIdItem
  * Find all methods that are annotated with JUnit4's @Test annotation, including any test methods that
  * may be inherited from superclasses or interfaces.
  */
-fun findAllJunit4Tests(dexFiles: List<DexFile>): List<TestMethod> {
+fun findAllJUnit4Tests(dexFiles: List<DexFile>): List<TestMethod> {
     val testAnnotationName = "org.junit.Test"
 
     // Map to hold all the class information we've found as we go
