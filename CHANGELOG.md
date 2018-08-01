@@ -1,9 +1,11 @@
 # Change Log
 
-## Version 2.0.0-SNAPSHOT
+## Version 2.0.0
 
 - Support finding superclass methods annotated with @Test for JUnit4 tests. Breaking change
-to the Java interface for finding JUnit4 tests
+to the Java interface for finding JUnit4 tests - [#13](https://github.com/linkedin/dex-test-parser/issues/13)
+- Added support for parsing and reading encoded values - [#9](https://github.com/linkedin/dex-test-parser/issues/9)
+- Fixed crashes when building with minSdkVersion 24+ - [#12](https://github.com/linkedin/dex-test-parser/issues/12)
 
 
 ## Version 1.1.0 (2017-07-13)
