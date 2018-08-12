@@ -25,6 +25,14 @@ task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
     from javadoc.destinationDir
 }
 
+jar {
+    manifest {
+        attributes (
+            'Main-Class': 'com.linkedin.dex.parser.DexParser'
+        )
+    }
+}
+
 publishing {
     publications {
         lib(MavenPublication) {
