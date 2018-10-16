@@ -68,20 +68,8 @@ private fun DexFile.findJUnit3Tests(descriptors: MutableSet<String>): List<TestM
             .filter { it.testName.contains("#test") }
 }
 
-private fun DexFile.findMethodIds(classDefItem: ClassDefItem): MutableList<MethodIdItem> {
-    val methodIds = mutableListOf<MethodIdItem>()
-    val testClassData = ClassDataItem.create(byteBuffer, classDefItem.classDataOff)
-    var previousMethodIdxOff = 0
-    testClassData.virtualMethods.forEachIndexed { index, encodedMethod ->
-        var methodIdxOff = encodedMethod.methodIdxDiff
-        if (index != 0) {
-            methodIdxOff += previousMethodIdxOff
-        }
-        previousMethodIdxOff = methodIdxOff
-
-        methodIds.add(this.methodIds[methodIdxOff])
-    }
-    return methodIds
+fun DexFile.findMethodIds(classDefItem: ClassDefItem): MutableList<MethodIdItem> {
+    return findMethodIdxs(classDefItem).map { this.methodIds[it] }.toMutableList()
 }
 
 // From the docs:
