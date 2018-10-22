@@ -16,7 +16,7 @@ class DexParserShould {
     fun parseCorrectNumberOfTestMethods() {
         val testMethods = DexParser.findTestNames(APK_PATH)
 
-        assertEquals(19, testMethods.size)
+        assertEquals(21, testMethods.size)
     }
 
     @Test
