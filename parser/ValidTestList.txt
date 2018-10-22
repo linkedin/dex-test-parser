@@ -14,6 +14,8 @@ com.linkedin.parser.test.junit4.java.ConcreteTest#abstractTest
 com.linkedin.parser.test.junit4.java.ConcreteTest#concreteTest
 com.linkedin.parser.test.junit4.java.JUnit4ClassInsideInterface$InnerClass#innerClassTest
 com.linkedin.parser.test.junit4.java.JUnit4TestInsideStaticInnerClass$InnerClass#innerClassTest
+com.linkedin.parser.test.junit4.kotlin.DefaultInterfaceImplementation#testMethodShouldNotBeReported
+com.linkedin.parser.test.junit4.kotlin.DefaultInterfaceImplementation#testToBeOverrideShouldNotBeReportedInInterface
 com.linkedin.parser.test.junit4.kotlin.KotlinJUnit4Basic#testKotlinJUnit4Basic
 com.linkedin.parser.test.junit4.kotlin.KotlinJUnit4TestInsideStaticInnerClass$InnerClass#testKotlinJUnit4TestInsideStaticInnerClass
 com.linkedin.parser.test.junit4.kotlin.KotlinJUnit4WithAnnotations#testKotlinJUnit4WithAnnotations
