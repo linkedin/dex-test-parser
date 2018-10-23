@@ -22,4 +22,9 @@ public class BasicJUnit4 extends ConcreteTest {
     public void basicJUnit4Second() {
         assertTrue(true);
     }
+
+    @Test
+    private void privateTestShouldNotBeReported() {
+        assertTrue(true);
+    }
 }

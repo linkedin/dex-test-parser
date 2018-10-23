@@ -4,8 +4,8 @@
  */
 package com.linkedin.dex.parser
 
-import com.linkedin.dex.spec.ACC_INTERFACE
 import com.linkedin.dex.spec.ACC_ABSTRACT
+import com.linkedin.dex.spec.ACC_INTERFACE
 import com.linkedin.dex.spec.AnnotationsDirectoryItem
 import com.linkedin.dex.spec.ClassDefItem
 import com.linkedin.dex.spec.DexFile
@@ -24,7 +24,7 @@ fun findAllJUnit4Tests(dexFiles: List<DexFile>): List<TestMethod> {
     // implemented interfaces appear in the list earlier than the referring class
     val classTestMethods: MutableMap<String, ClassParsingResult> = mutableMapOf()
 
-    dexFiles.map {dexFile ->
+    dexFiles.map { dexFile ->
 
         // We include classes that do not have annotations because there may be an intermediary class without tests
         // For example, TestClass1 defines a test, EmptyClass2 extends TestClass1 and defines nothing, and then TestClass2
@@ -32,9 +32,11 @@ fun findAllJUnit4Tests(dexFiles: List<DexFile>): List<TestMethod> {
         val classesWithAnnotations = dexFile.classDefs.filterNot(::isInterface)
 
         classesWithAnnotations.map { classDef ->
-            val baseTests = dexFile.createTestMethods(classDef, dexFile.findMethodIds()).filter { it.annotations.map {
-                it.name
-            }.contains(testAnnotationName) }
+            val baseTests = dexFile.createTestMethods(classDef, dexFile.findMethodIds()).filter {
+                it.annotations.map {
+                    it.name
+                }.contains(testAnnotationName)
+            }
 
             val superTests = createTestMethodsFromSuperMethods(dexFile.formatClassName(classDef), getSuperTestMethods(classDef, classTestMethods, dexFile))
             classTestMethods[dexFile.getClassName(classDef)] = ClassParsingResult(dexFile.getSuperclassName(classDef), baseTests union superTests, !(isAbstract(classDef) || isInterface(classDef)))
@@ -60,7 +62,12 @@ private fun getSuperTestMethods(classDefItem: ClassDefItem, classTestMethods: Ma
  * Find methodIds we care about: any method in the class which is annotated
  */
 private fun DexFile.findMethodIds(): (ClassDefItem, AnnotationsDirectoryItem?) -> List<MethodIdItem> {
-    return { _, directory -> directory?.methodAnnotations?.map { methodIds[it.methodIdx] } ?: emptyList() }
+    return { classDefItem, directory ->
+        val annotatedIds = directory?.methodAnnotations?.map { it.methodIdx } ?: emptyList()
+        this.findMethodIdxs(classDefItem).filter {
+            annotatedIds.contains(it)
+        }.map { methodIds[it] }
+    }
 }
 
 private fun DexFile.getClassName(classDefItem: ClassDefItem): String {
