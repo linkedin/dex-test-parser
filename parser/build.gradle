@@ -83,7 +83,7 @@ build.dependsOn shadowJar
 task testParsing(dependsOn: ':test-app:assembleDebugAndroidTest', type: JavaExec) {
     classpath sourceSets.main.runtimeClasspath
     main = 'com.linkedin.dex.parser.DexParser'
-    args "${rootProject.project('test-app').buildDir}/outputs/apk/test-app-debug-androidTest.apk", "$buildDir"
+    args "${rootProject.project('test-app').buildDir}/outputs/apk/androidTest/debug/test-app-debug-androidTest.apk", "$buildDir"
 
     doLast {
         def validTests = file('ValidTestList.txt').readLines()

@@ -4,7 +4,7 @@ apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "26.0.0"
+    buildToolsVersion "26.0.2"
     defaultConfig {
         applicationId "com.linkedin.parser.test"
         minSdkVersion 15
@@ -15,14 +15,16 @@ android {
     lintOptions {
         abortOnError false
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
 }
 
 repositories {
+    google()
     jcenter()
-    maven {
-        url "https://maven.google.com"
-    }
 }
 
 dependencies {
