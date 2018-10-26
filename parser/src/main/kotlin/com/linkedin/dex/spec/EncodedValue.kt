@@ -44,7 +44,7 @@ sealed class EncodedValue {
         val VALUE_BOOLEAN: Byte = 0x1f
 
         fun create(byteBuffer: ByteBuffer): EncodedValue {
-            val argAndType = byteBuffer.get().toInt()
+            val argAndType = byteBuffer.get().toUnsigned8BitInt()
 
             // first three bits are the optional valueArg
             val valueArg = (argAndType ushr 5).toByte()
@@ -126,3 +126,5 @@ sealed class EncodedValue {
         }
     }
 }
+
+private fun Byte.toUnsigned8BitInt(): Int = (this.toInt() and 0xFF)
