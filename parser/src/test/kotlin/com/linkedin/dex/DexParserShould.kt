@@ -83,7 +83,7 @@ class DexParserShould {
 
         val methodAnnotation = valueAnnotations[1]
         val value = methodAnnotation.values["floatValue"]
-        assertMatches(value, .25f)
+        assertMatches(value, 0.25f)
     }
 
     @Test
@@ -93,7 +93,7 @@ class DexParserShould {
 
         val methodAnnotation = valueAnnotations[1]
         val value = methodAnnotation.values["doubleValue"]
-        assertMatches(value, .5)
+        assertMatches(value, 0.5)
     }
 
     @Test
@@ -104,6 +104,18 @@ class DexParserShould {
         val methodAnnotation = valueAnnotations[1]
         val value = methodAnnotation.values["byteValue"]
         assertMatches(value, 0x0f.toByte())
+    }
+
+    @Test
+    fun parseFloatMaxValuesInDoubleFields() {
+        val method = getSecondBasicJunit4TestMethod()
+        val valueAnnotations = method.annotations.filter { it.name.contains("FloatRange") }
+
+        val methodAnnotation = valueAnnotations[0]
+        val from = methodAnnotation.values["from"]
+        assertMatches(from, 0f.toDouble())
+        val to = methodAnnotation.values["to"]
+        assertMatches(to, Float.MAX_VALUE.toDouble())
     }
 
     @Test

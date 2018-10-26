@@ -19,6 +19,7 @@ public class BasicJUnit4 extends ConcreteTest {
 
     @Test
     @TestValueAnnotation(floatValue = 0.25f, doubleValue = 0.5, byteValue = 0x0f, charValue = '?', shortValue = 3)
+    @FloatRange(from = 0f, to = Float.MAX_VALUE)
     public void basicJUnit4Second() {
         assertTrue(true);
     }
