@@ -1,5 +1,10 @@
 # Change Log
 
+## Version 2.0.1 (2018-12-13)
+
+- Fix reporting when using default interface methods and private methods [#20](https://github.com/linkedin/dex-test-parser/issues/20)
+- Fix buffer overflow when parsing test annotations [#21](https://github.com/linkedin/dex-test-parser/issues/21)
+
 ## Version 2.0.0
 
 - Support finding superclass methods annotated with @Test for JUnit4 tests. Breaking change
