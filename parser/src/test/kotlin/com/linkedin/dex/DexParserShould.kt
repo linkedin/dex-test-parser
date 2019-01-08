@@ -255,5 +255,6 @@ class DexParserShould {
             throw Exception("Value was not a short type")
         }
     }
+
     // endregion
 }
