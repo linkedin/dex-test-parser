@@ -150,6 +150,15 @@ class DexParserShould {
         assertMatches(methodAnnotation.values["longValue"], 56789L)
     }
 
+    @Test
+    fun parseEnumAnnotation() {
+        val method = getSecondBasicJunit4TestMethod()
+        val valueAnnotations = method.annotations.filter { it.name.contains("TestValueAnnotation") }
+
+        val methodAnnotation = valueAnnotations[1]
+        assertMatches(methodAnnotation.values["enumValue"], "FAIL")
+    }
+
     private fun getBasicJunit4TestMethod(): TestMethod {
         val testMethods = DexParser.findTestMethods(APK_PATH).filter { it.annotations.filter { it.name.contains("TestValueAnnotation") }.isNotEmpty() }.filter { it.testName.equals("com.linkedin.parser.test.junit4.java.BasicJUnit4#basicJUnit4") }
 
@@ -175,6 +184,8 @@ class DexParserShould {
     // region value type matchers
     private fun assertMatches(value: DecodedValue?, string: String) {
         if (value is DecodedValue.DecodedString) {
+            assertEquals(string, value.value)
+        } else if (value is DecodedValue.DecodedEnum) {
             assertEquals(string, value.value)
         } else {
             throw Exception("Value was not a string type")
@@ -244,6 +255,5 @@ class DexParserShould {
             throw Exception("Value was not a short type")
         }
     }
-
     // endregion
 }

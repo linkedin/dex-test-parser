@@ -33,4 +33,6 @@ public @interface TestValueAnnotation {
     char charValue() default 0;
 
     short shortValue() default 0;
+
+    TestEnum enumValue() default TestEnum.SUCCESS;
 }
