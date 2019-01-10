@@ -43,7 +43,7 @@ fun DexFile.getClassAnnotationValues(directory: AnnotationsDirectoryItem?): List
 
     val classAnnotationSetItem = AnnotationSetItem.create(byteBuffer, directory.classAnnotationsOff)
 
-    return classAnnotationSetItem.entries.map { AnnotationItem.create(byteBuffer, it.annotationOff) }.map { getTestAnnotation(it) }
+    return classAnnotationSetItem.entries.map { AnnotationItem.create(byteBuffer, it.annotationOff) }.map { getTestAnnotation(it, true) }
 }
 
 /**
@@ -61,7 +61,7 @@ fun DexFile.getMethodAnnotationValues(methodId: MethodIdItem, annotationsDirecto
     }.flatten()
 }
 
-fun DexFile.getTestAnnotation(annotationItem: AnnotationItem): TestAnnotation {
+fun DexFile.getTestAnnotation(annotationItem: AnnotationItem, isClassAnnotation: Boolean = false): TestAnnotation {
     val name = formatDescriptor(ParseUtils.parseDescriptor(byteBuffer,
             typeIds[annotationItem.encodedAnnotation.typeIdx], stringIds))
     val encodedAnnotationValues = annotationItem.encodedAnnotation.elements
@@ -73,5 +73,5 @@ fun DexFile.getTestAnnotation(annotationItem: AnnotationItem): TestAnnotation {
         values.put(valueName, value)
     }
 
-    return TestAnnotation(name, values)
+    return TestAnnotation(name, values, isClassAnnotation)
 }

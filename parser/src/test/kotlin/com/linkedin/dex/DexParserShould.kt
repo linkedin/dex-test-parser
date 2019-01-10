@@ -4,7 +4,9 @@ import com.linkedin.dex.parser.DecodedValue
 import com.linkedin.dex.parser.DexParser
 import com.linkedin.dex.parser.TestMethod
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class DexParserShould {
@@ -40,10 +42,12 @@ class DexParserShould {
         val stringValue = classAnnotation.values["stringValue"]
         assertNotNull(stringValue)
         assertMatches(stringValue, "Hello world!")
+        assertTrue(classAnnotation.isClassAnnotation)
 
         val methodAnnotation = valueAnnotations[1]
         val methodStringValue = methodAnnotation.values["stringValue"]
         assertMatches(methodStringValue, "On a method")
+        assertFalse(methodAnnotation.isClassAnnotation)
     }
 
     @Test
