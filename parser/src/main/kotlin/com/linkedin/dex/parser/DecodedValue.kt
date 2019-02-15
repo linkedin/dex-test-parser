@@ -32,7 +32,7 @@ sealed class DecodedValue {
     // TODO: DecodedAnnotationValue
 
     companion object {
-        fun readStringInPosition(dexFile: DexFile, position: Int): String {
+        private fun readStringInPosition(dexFile: DexFile, position: Int): String {
             dexFile.byteBuffer.position(position)
             // read past unused size item
             Leb128.readUnsignedLeb128(dexFile.byteBuffer)
@@ -62,7 +62,8 @@ sealed class DecodedValue {
                 is EncodedValue.EncodedBoolean -> return DecodedBoolean(encodedValue.value)
                 is EncodedValue.EncodedNull -> return DecodedNull
                 is EncodedValue.EncodedEnum -> {
-                    val position = dexFile.stringIds[dexFile.fieldIds[encodedValue.value].nameIdx].stringDataOff
+                    val index = dexFile.fieldIds[encodedValue.value].nameIdx
+                    val position = dexFile.stringIds[index].stringDataOff
                     return DecodedEnum(readStringInPosition(dexFile, position))
                 }
                 else -> return DecodedNull
