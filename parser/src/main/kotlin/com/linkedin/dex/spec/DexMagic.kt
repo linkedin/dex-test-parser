@@ -21,18 +21,15 @@ data class DexMagic(
     )
 
     fun validate() {
-        val finalVersionValues = listOf(0x35, 0x37, 0x38)
-
-        finalVersionValues.forEach { version ->
-            val expectedMagic = DexMagic(
-                    dex = listOf(0x64, 0x65, 0x78),
-                    newline = 0xA,
-                    version = listOf(0x30, 0x33, version.toByte()),
-                    zero = 0x00
-            )
-            if (this == expectedMagic) {
-                return
-            }
+        if ((dex[0].toInt() == 0x64) and
+                (dex[1].toInt() == 0x65) and
+                (dex[2].toInt() == 0x78) and
+                (newline.toInt() == 0x0A)  and
+                (version[0].toInt() == 0x30) and
+                (version[1].toInt() == 0x33) and
+                (version[2].toInt() >= 0x35) and
+                (zero.toInt() == 0x00)) {
+            return
         }
         throw DexException("Invalid dexMagic:\n" + this + "\n")
     }
