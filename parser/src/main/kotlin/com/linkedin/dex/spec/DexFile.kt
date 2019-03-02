@@ -4,6 +4,7 @@
  */
 package com.linkedin.dex.spec
 
+import com.linkedin.dex.parser.ParseUtils
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -39,5 +40,25 @@ class DexFile(byteBuffer: ByteBuffer) {
         fieldIds = parse(headerItem.fieldIdsSize, headerItem.fieldIdsOff, FieldIdItem.size, ::FieldIdItem)
         methodIds = parse(headerItem.methodIdsSize, headerItem.methodIdsOff, MethodIdItem.size, ::MethodIdItem)
         classDefs = parse(headerItem.classDefsSize, headerItem.classDefsOff, ClassDefItem.size, ::ClassDefItem)
+    }
+
+    val inheritedAnnotationTypeIdIndex: Int by lazy {
+        var result: Int? = null
+        typeIds.forEachIndexed { index, typeIdItem ->
+            if (ParseUtils.parseDescriptor(byteBuffer, typeIdItem, stringIds) == "Ljava/lang/annotation/Inherited;") {
+                result = index
+            }
+        }
+        result ?: throw RuntimeException("What a Terrible Failure: Ljava/lang/annotation/Inherited;" +
+                " annotation is not found in the test output")
+    }
+
+    val typeIdToClassDefMap: Map<Int, ClassDefItem> by lazy {
+        val map = mutableMapOf<Int, ClassDefItem>()
+
+        for (classDef in classDefs) {
+            map[classDef.classIdx] = classDef
+        }
+        map.toMap()
     }
 }

@@ -91,6 +91,7 @@ private fun createTestMethodsFromSuperMethods(dexFile: DexFile, classDefItem: Cl
 
     val tests = superTests.map { method ->
         val onlyParentAnnotations = method.annotations.filterNot { childClassAnnotationNames.contains(it.name) }
+                .filter { it.inherited }
         TestMethod(className + (method.testName.substring(method.testName.indexOf('#') + 1)), onlyParentAnnotations + childClassAnnotations)
     }
     return tests.toSet()

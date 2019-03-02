@@ -4,7 +4,9 @@ import com.linkedin.dex.parser.DecodedValue
 import com.linkedin.dex.parser.DexParser
 import com.linkedin.dex.parser.TestMethod
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class DexParserShould {
@@ -37,7 +39,17 @@ class DexParserShould {
 
         val method = testMethods[0]
         assertEquals("com.linkedin.parser.test.junit4.java.BasicJUnit4#abstractTest", method.testName)
+        assertEquals(method.annotations[0].values["stringValue"], DecodedValue.DecodedString("Hello world!"))
+    }
+
+    @Test
+    fun parseInheritedAnnotation() {
+        val testMethods = DexParser.findTestMethods(APK_PATH).filter { it.annotations.filter { it.name.contains("InheritedAnnotation") }.isNotEmpty() }
+
+        val method = testMethods[0]
+        assertEquals("com.linkedin.parser.test.junit4.java.BasicJUnit4#concreteTest", method.testName)
         assertEquals(method.annotations[1].values["stringValue"], DecodedValue.DecodedString("Hello world!"))
+        assertFalse(method.annotations.any { it.name.contains("NonInheritedAnnotation") })
     }
 
     @Test
