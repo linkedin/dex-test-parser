@@ -39,17 +39,34 @@ class DexParserShould {
 
         val method = testMethods[0]
         assertEquals("com.linkedin.parser.test.junit4.java.BasicJUnit4#abstractTest", method.testName)
-        assertEquals(method.annotations[0].values["stringValue"], DecodedValue.DecodedString("Hello world!"))
+        assertEquals(method.annotations[1].values["stringValue"], DecodedValue.DecodedString("Hello world!"))
     }
 
     @Test
-    fun parseInheritedAnnotation() {
+    fun parseInheritedMethodAnnotation() {
         val testMethods = DexParser.findTestMethods(APK_PATH).filter { it.annotations.filter { it.name.contains("InheritedAnnotation") }.isNotEmpty() }
 
         val method = testMethods[0]
         assertEquals("com.linkedin.parser.test.junit4.java.BasicJUnit4#concreteTest", method.testName)
-        assertEquals(method.annotations[1].values["stringValue"], DecodedValue.DecodedString("Hello world!"))
+        assertEquals(method.annotations[2].values["stringValue"], DecodedValue.DecodedString("Hello world!"))
+    }
+
+    @Test
+    fun parsNonInheritedMethodAnnotation() {
+        val testMethods = DexParser.findTestMethods(APK_PATH).filter { it.annotations.filter { it.name.contains("InheritedAnnotation") }.isNotEmpty() }
+
+        val method = testMethods[0]
+        assertEquals("com.linkedin.parser.test.junit4.java.BasicJUnit4#concreteTest", method.testName)
         assertFalse(method.annotations.any { it.name.contains("NonInheritedAnnotation") })
+    }
+
+    @Test
+    fun parseInheritedClassAnnotation() {
+        val testMethods = DexParser.findTestMethods(APK_PATH).filter { it.annotations.filter { it.name.contains("InheritedAnnotation") }.isNotEmpty() }
+
+        val method = testMethods[0]
+        assertEquals("com.linkedin.parser.test.junit4.java.BasicJUnit4#concreteTest", method.testName)
+        assertTrue(method.annotations.any { it.name == "com.linkedin.parser.test.junit4.java.InheritedClassAnnotation" })
     }
 
     @Test
