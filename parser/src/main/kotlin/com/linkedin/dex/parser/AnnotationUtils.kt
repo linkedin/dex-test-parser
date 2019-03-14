@@ -57,7 +57,7 @@ fun DexFile.getMethodAnnotationValues(methodId: MethodIdItem, annotationsDirecto
             }
 
     return annotationSets.map {
-        it.entries.map { AnnotationItem.create(byteBuffer, it.annotationOff) }.map { getTestAnnotation(it)}
+        it.entries.map { AnnotationItem.create(byteBuffer, it.annotationOff) }.map { getTestAnnotation(it) }
     }.flatten()
 }
 
@@ -73,5 +73,21 @@ fun DexFile.getTestAnnotation(annotationItem: AnnotationItem): TestAnnotation {
         values.put(valueName, value)
     }
 
-    return TestAnnotation(name, values)
+    val annotationClassDef = typeIdToClassDefMap[annotationItem.encodedAnnotation.typeIdx]
+    val inherited = checkIfAnnotationIsInherited(annotationClassDef)
+
+    return TestAnnotation(name, values, inherited)
+}
+
+private fun DexFile.checkIfAnnotationIsInherited(annotationClassDef: ClassDefItem?): Boolean {
+    return annotationClassDef?.let {
+        val annotationsDirectory = getAnnotationsDirectory(annotationClassDef)
+        if (annotationsDirectory != null) {
+            val classAnnotationSetItem = AnnotationSetItem.create(byteBuffer, annotationsDirectory.classAnnotationsOff)
+            val annotations = classAnnotationSetItem.entries.map { AnnotationItem.create(byteBuffer, it.annotationOff) }
+            return@let annotations.any { it.encodedAnnotation.typeIdx == inheritedAnnotationTypeIdIndex }
+        } else {
+            false
+        }
+    } ?: false
 }

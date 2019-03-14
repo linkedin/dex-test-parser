@@ -38,7 +38,7 @@ fun findAllJUnit4Tests(dexFiles: List<DexFile>): List<TestMethod> {
                 }.contains(testAnnotationName)
             }
 
-            val superTests = createTestMethodsFromSuperMethods(dexFile.formatClassName(classDef), getSuperTestMethods(classDef, classTestMethods, dexFile))
+            val superTests = createTestMethodsFromSuperMethods(dexFile, classDef, dexFile.formatClassName(classDef), getSuperTestMethods(classDef, classTestMethods, dexFile))
             classTestMethods[dexFile.getClassName(classDef)] = ClassParsingResult(dexFile.getSuperclassName(classDef), baseTests union superTests, !(isAbstract(classDef) || isInterface(classDef)))
         }
     }
@@ -84,10 +84,17 @@ private fun DexFile.getSuperclassName(classDefItem: ClassDefItem): String {
 /**
  * Creates new TestMethod objects with the class name changed from the super class to the subclass
  */
-private fun createTestMethodsFromSuperMethods(className: String, superTests: Set<TestMethod>): Set<TestMethod> {
-    return superTests.map {
-        TestMethod(className + (it.testName.substring(it.testName.indexOf('#') + 1)), it.annotations)
-    }.toSet()
+private fun createTestMethodsFromSuperMethods(dexFile: DexFile, classDefItem: ClassDefItem, className: String, superTests: Set<TestMethod>): Set<TestMethod> {
+    val directory = dexFile.getAnnotationsDirectory(classDefItem)
+    val childClassAnnotations = dexFile.getClassAnnotationValues(directory)
+    val childClassAnnotationNames = childClassAnnotations.map { it.name }
+
+    val tests = superTests.map { method ->
+        val onlyParentAnnotations = method.annotations.filterNot { childClassAnnotationNames.contains(it.name) }
+                .filter { it.inherited }
+        TestMethod(className + (method.testName.substring(method.testName.indexOf('#') + 1)), onlyParentAnnotations + childClassAnnotations)
+    }
+    return tests.toSet()
 }
 
 private fun isInterface(classDefItem: ClassDefItem): Boolean {
