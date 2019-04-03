@@ -1,8 +1,6 @@
 package com.linkedin.dex.parser
 
 import com.linkedin.dex.spec.DexFile
-import com.linkedin.dex.spec.EncodedAnnotation
-import com.linkedin.dex.spec.EncodedArray
 import com.linkedin.dex.spec.EncodedValue
 import com.linkedin.dex.spec.Leb128
 
@@ -51,7 +49,7 @@ sealed class DecodedValue {
                     return DecodedString(ParseUtils.parseStringBytes(dexFile.byteBuffer))
                 }
                 is EncodedValue.EncodedType -> {
-                    dexFile.byteBuffer.position(dexFile.typeIds[encodedValue.value].descriptorIdx)
+                    dexFile.byteBuffer.position(dexFile.stringIds[dexFile.typeIds[encodedValue.value].descriptorIdx].stringDataOff)
                     // read past unused size item
                     Leb128.readUnsignedLeb128(dexFile.byteBuffer)
                     return DecodedType(ParseUtils.parseStringBytes(dexFile.byteBuffer))
