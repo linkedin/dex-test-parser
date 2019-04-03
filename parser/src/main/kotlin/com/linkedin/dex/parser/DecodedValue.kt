@@ -22,14 +22,21 @@ sealed class DecodedValue {
     data class DecodedType(val value: String) : DecodedValue()
     object DecodedNull : DecodedValue()
     data class DecodedBoolean(val value: Boolean) : DecodedValue()
+    data class DecodedEnum(val value: String) : DecodedValue()
     // TODO: DecodedType
     // TODO: DecodedField
     // TODO: DecodedMethod
-    // TODO: DecodedEnum
     // TODO: DecodedArrayValue
     // TODO: DecodedAnnotationValue
-    
+
     companion object {
+        private fun readStringInPosition(dexFile: DexFile, position: Int): String {
+            dexFile.byteBuffer.position(position)
+            // read past unused size item
+            Leb128.readUnsignedLeb128(dexFile.byteBuffer)
+            return ParseUtils.parseStringBytes(dexFile.byteBuffer)
+        }
+
         /**
          * Resolve an encoded value against the given dexfile
          */
@@ -43,20 +50,20 @@ sealed class DecodedValue {
                 is EncodedValue.EncodedFloat -> return DecodedFloat(encodedValue.value)
                 is EncodedValue.EncodedDouble -> return DecodedDouble(encodedValue.value)
                 is EncodedValue.EncodedString -> {
-                    dexFile.byteBuffer.position(dexFile.stringIds[encodedValue.value].stringDataOff)
-                    // read past unused size item
-                    Leb128.readUnsignedLeb128(dexFile.byteBuffer)
-                    return DecodedString(ParseUtils.parseStringBytes(dexFile.byteBuffer))
+                    val position = dexFile.stringIds[encodedValue.value].stringDataOff
+                    return DecodedString(readStringInPosition(dexFile, position))
                 }
                 is EncodedValue.EncodedType -> {
-                    dexFile.byteBuffer.position(dexFile.stringIds[dexFile.typeIds[encodedValue.value].descriptorIdx].stringDataOff)
-                    // read past unused size item
-                    Leb128.readUnsignedLeb128(dexFile.byteBuffer)
-                    return DecodedType(ParseUtils.parseStringBytes(dexFile.byteBuffer))
+                    val position = dexFile.stringIds[dexFile.typeIds[encodedValue.value].descriptorIdx].stringDataOff
+                    return DecodedType(readStringInPosition(dexFile, position))
                 }
                 is EncodedValue.EncodedBoolean -> return DecodedBoolean(encodedValue.value)
                 is EncodedValue.EncodedNull -> return DecodedNull
-
+                is EncodedValue.EncodedEnum -> {
+                    val index = dexFile.fieldIds[encodedValue.value].nameIdx
+                    val position = dexFile.stringIds[index].stringDataOff
+                    return DecodedEnum(readStringInPosition(dexFile, position))
+                }
                 else -> return DecodedNull
             }
         }

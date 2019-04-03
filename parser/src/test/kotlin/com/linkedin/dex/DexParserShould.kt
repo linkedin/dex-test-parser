@@ -4,7 +4,9 @@ import com.linkedin.dex.parser.DecodedValue
 import com.linkedin.dex.parser.DexParser
 import com.linkedin.dex.parser.TestMethod
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class DexParserShould {
@@ -23,12 +25,48 @@ class DexParserShould {
     fun parseMethodWithMultipleMethodAnnotations() {
         val testMethods = DexParser.findTestMethods(APK_PATH).filter { it.annotations.filter { it.name.contains("TestValueAnnotation") }.isNotEmpty() }
 
-        assertEquals(2, testMethods.size)
+        assertEquals(4, testMethods.size)
 
-        val method = testMethods.first()
+        val method = testMethods[1]
         assertEquals(method.testName, "com.linkedin.parser.test.junit4.java.BasicJUnit4#basicJUnit4")
         // TestValueAnnotation at the class level, Test annotation at the method level, and TestValueAnnotation at the method level
         assertEquals(method.annotations.size, 3)
+    }
+
+    @Test
+    fun parseMethodWithChildclassAnnotation() {
+        val testMethods = DexParser.findTestMethods(APK_PATH).filter { it.annotations.filter { it.name.contains("TestValueAnnotation") }.isNotEmpty() }
+
+        val method = testMethods[0]
+        assertEquals("com.linkedin.parser.test.junit4.java.BasicJUnit4#abstractTest", method.testName)
+        assertEquals(method.annotations[1].values["stringValue"], DecodedValue.DecodedString("Hello world!"))
+    }
+
+    @Test
+    fun parseInheritedMethodAnnotation() {
+        val testMethods = DexParser.findTestMethods(APK_PATH).filter { it.annotations.filter { it.name.contains("InheritedAnnotation") }.isNotEmpty() }
+
+        val method = testMethods[0]
+        assertEquals("com.linkedin.parser.test.junit4.java.BasicJUnit4#concreteTest", method.testName)
+        assertEquals(method.annotations[2].values["stringValue"], DecodedValue.DecodedString("Hello world!"))
+    }
+
+    @Test
+    fun parsNonInheritedMethodAnnotation() {
+        val testMethods = DexParser.findTestMethods(APK_PATH).filter { it.annotations.filter { it.name.contains("InheritedAnnotation") }.isNotEmpty() }
+
+        val method = testMethods[0]
+        assertEquals("com.linkedin.parser.test.junit4.java.BasicJUnit4#concreteTest", method.testName)
+        assertFalse(method.annotations.any { it.name.contains("NonInheritedAnnotation") })
+    }
+
+    @Test
+    fun parseInheritedClassAnnotation() {
+        val testMethods = DexParser.findTestMethods(APK_PATH).filter { it.annotations.filter { it.name.contains("InheritedAnnotation") }.isNotEmpty() }
+
+        val method = testMethods[0]
+        assertEquals("com.linkedin.parser.test.junit4.java.BasicJUnit4#concreteTest", method.testName)
+        assertTrue(method.annotations.any { it.name == "com.linkedin.parser.test.junit4.java.InheritedClassAnnotation" })
     }
 
     @Test
@@ -150,6 +188,15 @@ class DexParserShould {
         assertMatches(methodAnnotation.values["longValue"], 56789L)
     }
 
+    @Test
+    fun parseEnumAnnotation() {
+        val method = getSecondBasicJunit4TestMethod()
+        val valueAnnotations = method.annotations.filter { it.name.contains("TestValueAnnotation") }
+
+        val methodAnnotation = valueAnnotations[1]
+        assertMatches(methodAnnotation.values["enumValue"], "FAIL")
+    }
+
     private fun getBasicJunit4TestMethod(): TestMethod {
         val testMethods = DexParser.findTestMethods(APK_PATH).filter { it.annotations.filter { it.name.contains("TestValueAnnotation") }.isNotEmpty() }.filter { it.testName.equals("com.linkedin.parser.test.junit4.java.BasicJUnit4#basicJUnit4") }
 
@@ -175,6 +222,8 @@ class DexParserShould {
     // region value type matchers
     private fun assertMatches(value: DecodedValue?, string: String) {
         if (value is DecodedValue.DecodedString) {
+            assertEquals(string, value.value)
+        } else if (value is DecodedValue.DecodedEnum) {
             assertEquals(string, value.value)
         } else {
             throw Exception("Value was not a string type")
