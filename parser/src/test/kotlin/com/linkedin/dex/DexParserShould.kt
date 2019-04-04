@@ -197,6 +197,15 @@ class DexParserShould {
         assertMatches(methodAnnotation.values["enumValue"], "FAIL")
     }
 
+    @Test
+    fun parseTypeAnnotation() {
+        val method = getSecondBasicJunit4TestMethod()
+        val valueAnnotations = method.annotations.filter { it.name.contains("TestValueAnnotation") }
+
+        val methodAnnotation = valueAnnotations[1]
+        assertMatches(methodAnnotation.values["typeValue"], "Lorg/junit/Test;")
+    }
+
     private fun getBasicJunit4TestMethod(): TestMethod {
         val testMethods = DexParser.findTestMethods(APK_PATH).filter { it.annotations.filter { it.name.contains("TestValueAnnotation") }.isNotEmpty() }.filter { it.testName.equals("com.linkedin.parser.test.junit4.java.BasicJUnit4#basicJUnit4") }
 
@@ -224,6 +233,8 @@ class DexParserShould {
         if (value is DecodedValue.DecodedString) {
             assertEquals(string, value.value)
         } else if (value is DecodedValue.DecodedEnum) {
+            assertEquals(string, value.value)
+        } else if (value is DecodedValue.DecodedType) {
             assertEquals(string, value.value)
         } else {
             throw Exception("Value was not a string type")

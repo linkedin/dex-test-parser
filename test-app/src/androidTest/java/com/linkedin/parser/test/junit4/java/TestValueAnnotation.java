@@ -35,4 +35,6 @@ public @interface TestValueAnnotation {
     short shortValue() default 0;
 
     TestEnum enumValue() default TestEnum.SUCCESS;
+
+    Class typeValue() default Object.class;
 }
