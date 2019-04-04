@@ -56,7 +56,8 @@ sealed class DecodedValue {
                     return DecodedString(readStringInPosition(dexFile, position))
                 }
                 is EncodedValue.EncodedType -> {
-                    val position = dexFile.typeIds[encodedValue.value].descriptorIdx
+                    val index = dexFile.typeIds[encodedValue.value].descriptorIdx
+                    val position = dexFile.stringIds[index].stringDataOff
                     return DecodedType(readStringInPosition(dexFile, position))
                 }
                 is EncodedValue.EncodedBoolean -> return DecodedBoolean(encodedValue.value)
