@@ -1,5 +1,12 @@
 # Change Log
 
+## Version 2.1.0 (2019-04-04)
+
+- Add support for parsing enum annotation values [#28](https://github.com/linkedin/dex-test-parser/pull/28)
+- Improve DexMagic checks to support newer dex file formats [#31](https://github.com/linkedin/dex-test-parser/issues/31)
+- Support parsing `@Inherited` annotations [#26](https://github.com/linkedin/dex-test-parser/issues/26)
+- Fix crash with `Invalid LEB128 sequence` [#34](https://github.com/linkedin/dex-test-parser/issues/34)
+
 ## Version 2.0.1 (2018-12-13)
 
 - Fix reporting when using default interface methods and private methods [#20](https://github.com/linkedin/dex-test-parser/issues/20)
