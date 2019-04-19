@@ -42,15 +42,15 @@ class DexFile(byteBuffer: ByteBuffer) {
         classDefs = parse(headerItem.classDefsSize, headerItem.classDefsOff, ClassDefItem.size, ::ClassDefItem)
     }
 
-    val inheritedAnnotationTypeIdIndex: Int by lazy {
+    val inheritedAnnotationTypeIdIndex: Int? by lazy {
         var result: Int? = null
         typeIds.forEachIndexed { index, typeIdItem ->
             if (ParseUtils.parseDescriptor(byteBuffer, typeIdItem, stringIds) == "Ljava/lang/annotation/Inherited;") {
                 result = index
             }
         }
-        result ?: throw RuntimeException("What a Terrible Failure: Ljava/lang/annotation/Inherited;" +
-                " annotation is not found in the test output")
+
+        result
     }
 
     val typeIdToClassDefMap: Map<Int, ClassDefItem> by lazy {

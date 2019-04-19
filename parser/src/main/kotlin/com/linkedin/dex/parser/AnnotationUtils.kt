@@ -80,6 +80,9 @@ fun DexFile.getTestAnnotation(annotationItem: AnnotationItem): TestAnnotation {
 }
 
 private fun DexFile.checkIfAnnotationIsInherited(annotationClassDef: ClassDefItem?): Boolean {
+    //Early return when classpath doesn't contain Ljava/lang/annotation/Inherited annotation
+    if (inheritedAnnotationTypeIdIndex == null) return false
+
     return annotationClassDef?.let {
         val annotationsDirectory = getAnnotationsDirectory(annotationClassDef)
         if (annotationsDirectory != null) {
