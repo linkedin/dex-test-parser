@@ -1,5 +1,9 @@
 # Change Log
 
+## Version 2.1.1 (2019-04-23)
+
+- Fix crash when the classpath does not contain the `Inherited` annotation [#37](https://github.com/linkedin/dex-test-parser/issues/37)
+
 ## Version 2.1.0 (2019-04-04)
 
 - Add support for parsing enum annotation values [#28](https://github.com/linkedin/dex-test-parser/pull/28)
