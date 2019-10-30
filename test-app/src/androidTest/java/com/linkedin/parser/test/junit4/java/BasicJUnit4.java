@@ -6,6 +6,8 @@ package com.linkedin.parser.test.junit4.java;
 
 import org.junit.Test;
 
+import java.util.function.Function;
+
 import static org.junit.Assert.assertTrue;
 
 @TestValueAnnotation(stringValue = "Hello world!")
@@ -18,7 +20,7 @@ public class BasicJUnit4 extends ConcreteTest {
     }
 
     @Test
-    @TestValueAnnotation(floatValue = 0.25f, doubleValue = 0.5, byteValue = 0x0f, charValue = '?', shortValue = 3, enumValue = TestEnum.FAIL, typeValue = Test.class)
+    @TestValueAnnotation(floatValue = 0.25f, doubleValue = 0.5, byteValue = 0x0f, charValue = '?', shortValue = 3, enumValue = TestEnum.FAIL, typeValue = Test.class, arrayTypeValue = { Function.class, Integer.class})
     @FloatRange(from = 0f, to = Float.MAX_VALUE)
     public void basicJUnit4Second() {
         assertTrue(true);

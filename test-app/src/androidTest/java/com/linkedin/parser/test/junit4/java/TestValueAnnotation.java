@@ -37,4 +37,6 @@ public @interface TestValueAnnotation {
     TestEnum enumValue() default TestEnum.SUCCESS;
 
     Class typeValue() default Object.class;
+
+    Class[] arrayTypeValue() default {};
 }
