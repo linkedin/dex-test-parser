@@ -25,10 +25,9 @@ sealed class DecodedValue {
     object DecodedNull : DecodedValue()
     data class DecodedBoolean(val value: Boolean) : DecodedValue()
     data class DecodedEnum(val value: String) : DecodedValue()
-    // TODO: DecodedType
+    data class DecodedArrayValue(val values: Array<DecodedValue>): DecodedValue()
     // TODO: DecodedField
     // TODO: DecodedMethod
-    // TODO: DecodedArrayValue
     // TODO: DecodedAnnotationValue
 
     companion object {
@@ -67,6 +66,8 @@ sealed class DecodedValue {
                     val position = dexFile.stringIds[index].stringDataOff
                     return DecodedEnum(readStringInPosition(dexFile, position))
                 }
+                is EncodedValue.EncodedArrayValue -> return DecodedArrayValue(encodedValue.value.values.map { create(dexFile, it) }.toTypedArray())
+
                 else -> return DecodedNull
             }
         }

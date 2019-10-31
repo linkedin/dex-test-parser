@@ -3,6 +3,7 @@ package com.linkedin.dex
 import com.linkedin.dex.parser.DecodedValue
 import com.linkedin.dex.parser.DexParser
 import com.linkedin.dex.parser.TestMethod
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -177,6 +178,20 @@ class DexParserShould {
     }
 
     @Test
+    fun parseClassArrayAnnotationnValues() {
+        val method = getSecondBasicJunit4TestMethod()
+        val valueAnnotations = method.annotations.filter { it.name.contains("TestValueAnnotation") }
+
+        val methodAnnotation = valueAnnotations[1]
+        val value = methodAnnotation.values["arrayTypeValue"]
+
+        // We have to use a string as opposed to a class reference in this assertion, since the way
+        // that its actually stored on disk is their special class format and not what class.name
+        // will give
+        assertMatches(value, arrayOf("Ljava/util/function/Function;", "Ljava/lang/Integer;"))
+    }
+
+    @Test
     fun parseMultipleValuesInASingleAnnotation() {
         val method = getBasicJunit4TestMethod()
         val valueAnnotations = method.annotations.filter { it.name.contains("TestValueAnnotation") }
@@ -304,6 +319,16 @@ class DexParserShould {
             throw Exception("Value was not a short type")
         }
     }
+
+    private fun assertMatches(value: DecodedValue?, values: Array<String>) {
+        if (value is DecodedValue.DecodedArrayValue) {
+            val stringValues = value.values.map { (it as? DecodedValue.DecodedType)?.value }.toTypedArray()
+            assertArrayEquals(stringValues, values)
+        } else {
+            throw Exception("Value was not an array value")
+        }
+    }
+
 
     // endregion
 }
