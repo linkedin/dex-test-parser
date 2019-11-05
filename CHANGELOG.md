@@ -1,6 +1,6 @@
 # Change Log
 
-## Version 2.2.0-SNAPSHOT
+## Version 2.2.0 (2019-11-05)
 
 - Add support for encoded array values in annotations
 
