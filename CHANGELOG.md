@@ -1,5 +1,9 @@
 # Change Log
 
+## Version 2.2.0-SNAPSHOT
+
+- Add support for encoded array values in annotations
+
 ## Version 2.1.1 (2019-04-23)
 
 - Fix crash when the classpath does not contain the `Inherited` annotation [#37](https://github.com/linkedin/dex-test-parser/issues/37)
