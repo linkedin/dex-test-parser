@@ -12,7 +12,7 @@ import org.junit.Test
 
 class DexParserShould {
     companion object {
-        val APK_PATH = "test-app/build/outputs/apk/test-app-debug-androidTest.apk"
+        const val APK_PATH = "test-app/build/outputs/apk/androidTest/debug/test-app-debug-androidTest.apk"
     }
 
     @Test

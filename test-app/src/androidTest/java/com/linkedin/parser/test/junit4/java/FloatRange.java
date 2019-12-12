@@ -7,9 +7,9 @@ import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.RetentionPolicy.CLASS;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-@Retention(CLASS)
+@Retention(RUNTIME)
 @Target({ METHOD, PARAMETER, FIELD, LOCAL_VARIABLE})
 public @interface FloatRange {
     /** Smallest value. Whether it is inclusive or not is determined
