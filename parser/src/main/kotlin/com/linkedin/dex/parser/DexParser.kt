@@ -25,7 +25,8 @@ class DexParser private constructor() {
         /**
          * Main method included for easy local testing during development
          */
-        @JvmStatic fun main(vararg args: String) {
+        @JvmStatic
+        fun main(vararg args: String) {
             if (args.size != 2) {
                 println("Usage: apkPath outputPath")
                 System.exit(1)
@@ -41,7 +42,8 @@ class DexParser private constructor() {
         /**
          * Parse the apk found at [apkPath] and return the list of test names found in the apk
          */
-        @JvmStatic fun findTestNames(apkPath: String): List<String> {
+        @JvmStatic
+        fun findTestNames(apkPath: String): List<String> {
             return findTestMethods(apkPath).map { it.testName }
         }
 
@@ -51,17 +53,14 @@ class DexParser private constructor() {
          * included in the list of annotations for a given test and merged with the list of annotations that were
          * explicitly applied to the test method.
          */
-        @JvmStatic fun findTestMethods(apkPath: String): List<TestMethod> {
-            var allItems: List<TestMethod> = emptyList()
-
-            val dexFiles = Companion.readDexFiles(apkPath)
+        @JvmStatic
+        fun findTestMethods(apkPath: String): List<TestMethod> {
+            val dexFiles = readDexFiles(apkPath)
 
             val junit3Items = findJUnit3Tests(dexFiles).sorted()
             val junit4Items = findAllJUnit4Tests(dexFiles).sorted()
 
-            allItems = junit3Items.plus(junit4Items).sorted()
-
-            return allItems
+            return (junit3Items + junit4Items).sorted()
         }
 
         fun readDexFiles(path: String): List<DexFile> {
