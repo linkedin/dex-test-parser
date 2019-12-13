@@ -99,7 +99,7 @@ private fun createAllTestMethods(parsingResult: ClassParsingResult,
         classAllTestMethods.getOrPut(parsingResult.className) {
             val dexFile = parsingResult.dexFile
 
-            val superOnlyTestMethods = classTestMethods[parsingResult.superClassName]
+            val superTestMethods = classTestMethods[parsingResult.superClassName]
                     ?.let { createAllTestMethods(it, classTestMethods, classAllTestMethods) }
                     ?: emptySet()
 
@@ -108,7 +108,7 @@ private fun createAllTestMethods(parsingResult: ClassParsingResult,
             val childClassAnnotations = dexFile.getClassAnnotationValues(directory)
             val childClassAnnotationNames = childClassAnnotations.map { it.name }
 
-            val adaptedMethods = superOnlyTestMethods
+            val adaptedSuperMethods = superTestMethods
                     .map { method ->
                         val onlyParentAnnotations = method
                                 .annotations
@@ -122,7 +122,7 @@ private fun createAllTestMethods(parsingResult: ClassParsingResult,
                     }
                     .toSet()
 
-            return adaptedMethods union parsingResult.testMethods
+            return adaptedSuperMethods union parsingResult.testMethods
         }
 
 private val TestMethod.testNameWithoutClass
