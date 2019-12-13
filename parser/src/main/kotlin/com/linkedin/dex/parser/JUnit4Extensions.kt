@@ -23,68 +23,49 @@ fun findAllJUnit4Tests(dexFiles: List<DexFile>): List<TestMethod> {
     // implemented interfaces appear in the list earlier than the referring class
     // BUT it's not true for multiple dex files: superclass can be located in a different dex file
     // since the order is not guaranteed in this case we need to traverse all superclasses for each class
-    val classTestMethods: MutableMap<String, ClassParsingResult> = mutableMapOf()
+    val classTestMethods: Map<String, ClassParsingResult> = dexFiles.parseClasses()
 
     // Map for the second iteration to cache all found test methods including methods from superclass
     val classAllTestMethods: MutableMap<String, Set<TestMethod>> = hashMapOf()
 
-    dexFiles
-            .forEach { dexFile ->
-
-                // We include classes that do not have annotations because there may be an intermediary class without tests
-                // For example, TestClass1 defines a test, EmptyClass2 extends TestClass1 and defines nothing, and then TestClass2
-                // extends EmptyClass2, TestClass2 should also list the tests defined in TestClass1
-                dexFile
-                        .classDefs
-                        .asSequence()
-                        .filterNot(ClassDefItem::isInterface)
-                        .forEach { classDef ->
-                            val testMethods = dexFile
-                                    .createTestMethods(classDef, dexFile.findMethodIds())
-                                    .filter { it.containsTestAnnotation }
-
-                            classTestMethods[dexFile.getClassName(classDef)] = ClassParsingResult(
-                                    dexFile = dexFile,
-                                    classDef = classDef,
-                                    className = dexFile.getClassName(classDef),
-                                    superClassName = dexFile.getSuperclassName(classDef),
-                                    testMethods = testMethods.toSet(),
-                                    isConcrete = classDef.isConcrete
-                            )
-                        }
-            }
-
-    classTestMethods
-            .keys
-            .forEach { key ->
-                classTestMethods.computeIfPresent(key) { _, value ->
-                    val testMethods = createTestMethodsFromSuperMethods(value, classTestMethods, classAllTestMethods)
-                    value.copy(testMethods = value.testMethods union testMethods)
-                }
-            }
-
     return classTestMethods
             .values
             .filter { it.isConcrete }
-            .flatMap { it.testMethods }
-            .toList()
+            .map { value -> createAllTestMethods(value, classTestMethods, classAllTestMethods) }
+            .flatten()
 }
+
+private fun List<DexFile>.parseClasses(): Map<String, ClassParsingResult> =
+        asSequence()
+                .flatMap { dexFile ->
+                    // We include classes that do not have annotations because there may be an intermediary class without tests
+                    // For example, TestClass1 defines a test, EmptyClass2 extends TestClass1 and defines nothing, and then TestClass2
+                    // extends EmptyClass2, TestClass2 should also list the tests defined in TestClass1
+                    dexFile
+                            .classDefs
+                            .asSequence()
+                            .filterNot(ClassDefItem::isInterface)
+                            .map { classDef ->
+                                val testMethods = dexFile
+                                        .createTestMethods(classDef, dexFile.findMethodIds())
+                                        .filter { it.containsTestAnnotation }
+
+                                ClassParsingResult(
+                                        dexFile = dexFile,
+                                        classDef = classDef,
+                                        className = dexFile.getClassName(classDef),
+                                        superClassName = dexFile.getSuperclassName(classDef),
+                                        testMethods = testMethods.toSet(),
+                                        isConcrete = classDef.isConcrete
+                                )
+                            }
+                }
+                .associateBy { it.className }
 
 private const val JUNIT_TEST_ANNOTATION_NAME = "org.junit.Test"
 
 private val TestMethod.containsTestAnnotation: Boolean
     get() = annotations.map { it.name }.contains(JUNIT_TEST_ANNOTATION_NAME)
-
-/**
- * Gets the superclass' test methods, so they can be transferred into the subclass as well
- *
- * Because we build the parsed classes map with the full list of test methods for a given class (including super methods),
- * we don't need to actually traverse up the tree here. The immediate superclass will contain all other methods in it
- * already
- */
-private fun getSuperTestMethods(classTestMethods: Map<String, ClassParsingResult>,
-                                superClass: String): Set<TestMethod> =
-        classTestMethods[superClass]?.testMethods ?: emptySet()
 
 /**
  * Find methodIds we care about: any method in the class which is annotated
@@ -112,36 +93,36 @@ private fun DexFile.getSuperclassName(classDefItem: ClassDefItem): String {
 /**
  * Creates new TestMethod objects with the class name changed from the super class to the subclass
  */
-private fun createTestMethodsFromSuperMethods(parsingResult: ClassParsingResult,
-                                              classTestMethods: Map<String, ClassParsingResult>,
-                                              classAllTestMethods: MutableMap<String, Set<TestMethod>>): Set<TestMethod> =
+private fun createAllTestMethods(parsingResult: ClassParsingResult,
+                                 classTestMethods: Map<String, ClassParsingResult>,
+                                 classAllTestMethods: MutableMap<String, Set<TestMethod>>): Set<TestMethod> =
         classAllTestMethods.getOrPut(parsingResult.className) {
             val dexFile = parsingResult.dexFile
 
-            val superTestMethods = getSuperTestMethods(classTestMethods, parsingResult.superClassName)
-            val superSuperTestMethods = classTestMethods[parsingResult.superClassName]
-                    ?.superClassName
-                    ?.let { classTestMethods[it] }
-                    ?.let { createTestMethodsFromSuperMethods(it, classTestMethods, classAllTestMethods) }
+            val superOnlyTestMethods = classTestMethods[parsingResult.superClassName]
+                    ?.let { createAllTestMethods(it, classTestMethods, classAllTestMethods) }
                     ?: emptySet()
-
-            val testMethods = superTestMethods + superSuperTestMethods
 
             val className = dexFile.formatClassName(parsingResult.classDef)
             val directory = dexFile.getAnnotationsDirectory(parsingResult.classDef)
             val childClassAnnotations = dexFile.getClassAnnotationValues(directory)
             val childClassAnnotationNames = childClassAnnotations.map { it.name }
 
-            return testMethods
+            val adaptedMethods = superOnlyTestMethods
                     .map { method ->
                         val onlyParentAnnotations = method
                                 .annotations
                                 .filterNot { childClassAnnotationNames.contains(it.name) }
                                 .filter { it.inherited }
 
-                        TestMethod(className + method.testNameWithoutClass, onlyParentAnnotations + childClassAnnotations)
+                        TestMethod(
+                                testName = className + method.testNameWithoutClass,
+                                annotations = onlyParentAnnotations + childClassAnnotations
+                        )
                     }
                     .toSet()
+
+            return adaptedMethods union parsingResult.testMethods
         }
 
 private val TestMethod.testNameWithoutClass
