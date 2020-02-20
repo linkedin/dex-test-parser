@@ -4,18 +4,18 @@ apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "28.0.3"
+    buildToolsVersion "26.0.0"
     defaultConfig {
         applicationId "com.linkedin.parser.test"
         minSdkVersion 15
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "android.test.runner.AndroidJUnitRunner"
     }
     lintOptions {
         abortOnError false
     }
+
 }
 
 repositories {
@@ -26,5 +26,5 @@ repositories {
 }
 
 dependencies {
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
 }
