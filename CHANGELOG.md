@@ -1,5 +1,9 @@
 # Change Log
 
+## Version 2.1.1 (2020-06-11)
+
+- Fix test parsing when class and superclass are in different dex files [#45](https://github.com/linkedin/dex-test-parser/issues/45)
+
 ## Version 2.2.0 (2019-11-05)
 
 - Add support for encoded array values in annotations
