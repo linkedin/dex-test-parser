@@ -5,6 +5,8 @@
 package com.linkedin.dex.parser
 
 import com.linkedin.dex.spec.DexFile
+import com.xenomachina.argparser.ArgParser
+import com.xenomachina.argparser.default
 import java.io.File
 import java.io.FileInputStream
 import java.nio.ByteBuffer
@@ -19,7 +21,22 @@ import java.util.zip.ZipInputStream
  * NOTE: everything in the spec package is derived from the dex file format spec:
  * https://source.android.com/devices/tech/dalvik/dex-format.html
  */
-class DexParser private constructor() {
+class DexParserArgs(parser: ArgParser) {
+    val apkPath by parser.storing(
+        "-a", "--apk-path",
+        help = "path to apk file")
+
+    val outputDir by parser.storing(
+        "-o",
+        "--output-dir",
+        help = "path to output dir where AllTests.txt file will be saved, if not set output will go to stdout"
+    ).default("")
+
+    val customAnnotations by parser.adding(
+        "-A", help = "add custom annotation used by tests") { toString() }
+}
+
+ class DexParser private constructor() {
     companion object {
 
         /**
@@ -27,29 +44,22 @@ class DexParser private constructor() {
          */
         @JvmStatic
         fun main(vararg args: String) {
-            if ((args.size < 2) or (args.size > 3)) {
-                println("Usage: apkPath outputPath [custom_annotation,]")
-                System.exit(1)
+            val parsedArgs = ArgParser(args).parseInto(::DexParserArgs)
+            parsedArgs.run {
+                val allItems = Companion.findTestNames(apkPath, customAnnotations)
+                if (outputDir.isEmpty()) {
+                    println(allItems.joinToString(separator = "\n"))
+                } else {
+                    Files.write(File(outputDir + "/AllTests.txt").toPath(), allItems)
+                }
             }
-            val apkPath = args[0]
-            val outputPath = args[1]
-            val customAnnotations: String
-            if (args.size == 3) {
-                customAnnotations = args[2]
-            } else {
-                customAnnotations = ""
-            }
-
-            val allItems = Companion.findTestNames(apkPath, customAnnotations)
-
-            Files.write(File(outputPath + "/AllTests.txt").toPath(), allItems)
         }
 
         /**
          * Parse the apk found at [apkPath] and return the list of test names found in the apk
          */
         @JvmStatic
-        fun findTestNames(apkPath: String, customAnnotations: String): List<String> {
+        fun findTestNames(apkPath: String, customAnnotations: List<String>): List<String> {
             return findTestMethods(apkPath, customAnnotations).map { it.testName }
         }
 
@@ -60,7 +70,7 @@ class DexParser private constructor() {
          * explicitly applied to the test method.
          */
         @JvmStatic
-        fun findTestMethods(apkPath: String, customAnnotations: String): List<TestMethod> {
+        fun findTestMethods(apkPath: String, customAnnotations: List<String>): List<TestMethod> {
             val dexFiles = readDexFiles(apkPath)
 
             val junit3Items = findJUnit3Tests(dexFiles).sorted()

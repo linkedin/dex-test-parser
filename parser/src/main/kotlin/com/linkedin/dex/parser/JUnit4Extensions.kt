@@ -15,7 +15,7 @@ import com.linkedin.dex.spec.MethodIdItem
  * Find all methods that are annotated with JUnit4's @Test annotation, including any test methods that
  * may be inherited from superclasses or interfaces.
  */
-fun findAllJUnit4Tests(dexFiles: List<DexFile>, customAnnotations: String): List<TestMethod> {
+fun findAllJUnit4Tests(dexFiles: List<DexFile>, customAnnotations: List<String>): List<TestMethod> {
 
     // Map to hold all the class information we've found as we go
     // From the docs:
@@ -35,7 +35,7 @@ fun findAllJUnit4Tests(dexFiles: List<DexFile>, customAnnotations: String): List
             .flatten()
 }
 
-private fun List<DexFile>.parseClasses(customAnnotations: String): Map<String, ClassParsingResult> =
+private fun List<DexFile>.parseClasses(customAnnotations: List<String>): Map<String, ClassParsingResult> =
         asSequence()
                 .flatMap { dexFile ->
                     // We include classes that do not have annotations because there may be an intermediary class without tests
@@ -64,13 +64,10 @@ private fun List<DexFile>.parseClasses(customAnnotations: String): Map<String, C
 
 private const val JUNIT_TEST_ANNOTATION_NAME = "org.junit.Test"
 
-private fun TestMethod.containsTestAnnotation(customAnnotations: String): Boolean {
-    if (customAnnotations.length > 0) {
-        val parts = customAnnotations.split(",")
-        for (part in parts) {
-            if (annotations.map { it.name }.contains(part)) {
-                return true
-            }
+private fun TestMethod.containsTestAnnotation(customAnnotations: List<String>): Boolean {
+    for (a in customAnnotations) {
+        if (annotations.map { it.name }.contains(a)) {
+            return true
         }
     }
     if (annotations.map { it.name }.contains(JUNIT_TEST_ANNOTATION_NAME)) {
@@ -105,9 +102,11 @@ private fun DexFile.getSuperclassName(classDefItem: ClassDefItem): String {
 /**
  * Creates new TestMethod objects with the class name changed from the super class to the subclass
  */
-private fun createAllTestMethods(parsingResult: ClassParsingResult,
-                                 classTestMethods: Map<String, ClassParsingResult>,
-                                 classAllTestMethods: MutableMap<String, Set<TestMethod>>): Set<TestMethod> =
+private fun createAllTestMethods(
+    parsingResult: ClassParsingResult,
+    classTestMethods: Map<String, ClassParsingResult>,
+    classAllTestMethods: MutableMap<String, Set<TestMethod>>
+): Set<TestMethod> =
         classAllTestMethods.getOrPut(parsingResult.className) {
             val dexFile = parsingResult.dexFile
 
@@ -153,10 +152,10 @@ private val ClassDefItem.isAbstract: Boolean
 // We need to hold the information for every class, since there is no way to know if a later class will subclass it or not
 // We keep isConcrete as well to make filtering at the end easier
 private data class ClassParsingResult(
-        val dexFile: DexFile,
-        val classDef: ClassDefItem,
-        val className: String,
-        val superClassName: String,
-        val testMethods: Set<TestMethod>,
-        val isConcrete: Boolean
+    val dexFile: DexFile,
+    val classDef: ClassDefItem,
+    val className: String,
+    val superClassName: String,
+    val testMethods: Set<TestMethod>,
+    val isConcrete: Boolean
 )
