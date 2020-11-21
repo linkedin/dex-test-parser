@@ -27,14 +27,20 @@ class DexParser private constructor() {
          */
         @JvmStatic
         fun main(vararg args: String) {
-            if (args.size != 2) {
-                println("Usage: apkPath outputPath")
+            if ((args.size < 2) or (args.size > 3)) {
+                println("Usage: apkPath outputPath [custom_annotation,]")
                 System.exit(1)
             }
             val apkPath = args[0]
             val outputPath = args[1]
+            val customAnnotations: String
+            if (args.size == 3) {
+                customAnnotations = args[2]
+            } else {
+                customAnnotations = ""
+            }
 
-            val allItems = Companion.findTestNames(apkPath)
+            val allItems = Companion.findTestNames(apkPath, customAnnotations)
 
             Files.write(File(outputPath + "/AllTests.txt").toPath(), allItems)
         }
@@ -43,8 +49,8 @@ class DexParser private constructor() {
          * Parse the apk found at [apkPath] and return the list of test names found in the apk
          */
         @JvmStatic
-        fun findTestNames(apkPath: String): List<String> {
-            return findTestMethods(apkPath).map { it.testName }
+        fun findTestNames(apkPath: String, customAnnotations: String): List<String> {
+            return findTestMethods(apkPath, customAnnotations).map { it.testName }
         }
 
         /**
@@ -54,11 +60,11 @@ class DexParser private constructor() {
          * explicitly applied to the test method.
          */
         @JvmStatic
-        fun findTestMethods(apkPath: String): List<TestMethod> {
+        fun findTestMethods(apkPath: String, customAnnotations: String): List<TestMethod> {
             val dexFiles = readDexFiles(apkPath)
 
             val junit3Items = findJUnit3Tests(dexFiles).sorted()
-            val junit4Items = findAllJUnit4Tests(dexFiles).sorted()
+            val junit4Items = findAllJUnit4Tests(dexFiles, customAnnotations).sorted()
 
             return (junit3Items + junit4Items).sorted()
         }

@@ -15,7 +15,7 @@ import com.linkedin.dex.spec.MethodIdItem
  * Find all methods that are annotated with JUnit4's @Test annotation, including any test methods that
  * may be inherited from superclasses or interfaces.
  */
-fun findAllJUnit4Tests(dexFiles: List<DexFile>): List<TestMethod> {
+fun findAllJUnit4Tests(dexFiles: List<DexFile>, customAnnotations: String): List<TestMethod> {
 
     // Map to hold all the class information we've found as we go
     // From the docs:
@@ -23,7 +23,7 @@ fun findAllJUnit4Tests(dexFiles: List<DexFile>): List<TestMethod> {
     // implemented interfaces appear in the list earlier than the referring class
     // BUT it's not true for multiple dex files: superclass can be located in a different dex file
     // since the order is not guaranteed in this case we need to traverse all superclasses for each class
-    val classTestMethods: Map<String, ClassParsingResult> = dexFiles.parseClasses()
+    val classTestMethods: Map<String, ClassParsingResult> = dexFiles.parseClasses(customAnnotations)
 
     // Map for the second iteration to cache all found test methods including methods from superclass
     val classAllTestMethods: MutableMap<String, Set<TestMethod>> = hashMapOf()
@@ -35,7 +35,7 @@ fun findAllJUnit4Tests(dexFiles: List<DexFile>): List<TestMethod> {
             .flatten()
 }
 
-private fun List<DexFile>.parseClasses(): Map<String, ClassParsingResult> =
+private fun List<DexFile>.parseClasses(customAnnotations: String): Map<String, ClassParsingResult> =
         asSequence()
                 .flatMap { dexFile ->
                     // We include classes that do not have annotations because there may be an intermediary class without tests
@@ -48,7 +48,7 @@ private fun List<DexFile>.parseClasses(): Map<String, ClassParsingResult> =
                             .map { classDef ->
                                 val testMethods = dexFile
                                         .createTestMethods(classDef, dexFile.findMethodIds())
-                                        .filter { it.containsTestAnnotation }
+                                        .filter { it.containsTestAnnotation(customAnnotations) }
 
                                 ClassParsingResult(
                                         dexFile = dexFile,
@@ -64,8 +64,20 @@ private fun List<DexFile>.parseClasses(): Map<String, ClassParsingResult> =
 
 private const val JUNIT_TEST_ANNOTATION_NAME = "org.junit.Test"
 
-private val TestMethod.containsTestAnnotation: Boolean
-    get() = annotations.map { it.name }.contains(JUNIT_TEST_ANNOTATION_NAME)
+private fun TestMethod.containsTestAnnotation(customAnnotations: String): Boolean {
+    if (customAnnotations.length > 0) {
+        val parts = customAnnotations.split(",")
+        for (part in parts) {
+            if (annotations.map { it.name }.contains(part)) {
+                return true
+            }
+        }
+    }
+    if (annotations.map { it.name }.contains(JUNIT_TEST_ANNOTATION_NAME)) {
+        return true
+    }
+    return false
+}
 
 /**
  * Find methodIds we care about: any method in the class which is annotated
