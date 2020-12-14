@@ -22,13 +22,11 @@ import java.util.zip.ZipInputStream
  * https://source.android.com/devices/tech/dalvik/dex-format.html
  */
 class DexParserArgs(parser: ArgParser) {
-    val apkPath by parser.storing(
-        "-a", "--apk-path",
-        help = "path to apk file")
+    val apkPath by parser.positional(
+        help = "path to apk file"
+    )
 
-    val outputDir by parser.storing(
-        "-o",
-        "--output-dir",
+    val outputDir by parser.positional(
         help = "path to output dir where AllTests.txt file will be saved, if not set output will go to stdout"
     ).default("")
 
