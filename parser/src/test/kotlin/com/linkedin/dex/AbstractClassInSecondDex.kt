@@ -30,7 +30,7 @@ class AbstractClassInSecondDex {
     @Test
     fun parseMethodFromBaseAbstractClass_whenAbstractClassInTheSecondDex() {
         val testMethods = DexParser
-            .findTestMethods(APK_PATH)
+            .findTestMethods(APK_PATH, listOf(""))
             .filter { it.testName == "com.linkedin.parser.test.junit4.java.BasicJUnit4#abstractTest" }
 
         assertEquals(1, testMethods.size)
@@ -39,7 +39,7 @@ class AbstractClassInSecondDex {
     @Test
     fun parseMethodFromConcreteClassThatExtendsFromAbstract_whenAbstractClassInTheSecondDex() {
         val testMethods = DexParser
-            .findTestMethods(APK_PATH)
+            .findTestMethods(APK_PATH, listOf(""))
             .filter { it.testName == "com.linkedin.parser.test.junit4.java.BasicJUnit4#concreteTest" }
 
         assertEquals(1, testMethods.size)
