@@ -37,15 +37,24 @@ or you can manually download the jar from [Bintray](https://bintray.com/linkedin
 
 dex-test-parser provides a single public method that you can call from Java to get all test method names.
 ```java
-
-List<String> testMethodNames = DexParser.findTestNames(apkPath);
-
+List<String> customAnnotations = listOf("");
+List<String> testMethodNames = DexParser.findTestNames(apkPath, customAnnotations);
 ```
+Variable customAnnotations is a list of custom tags that marks tests if you are using custom test runner for your tests.
 
 You can also use the jar directly from the command line if you prefer. This will create a file called `AllTests.txt` in the specified output directory.
 
 ```
 
 java -jar parser.jar path/to/apk path/for/output
+
+```
+If "path/for/output" is omitted, the output will be printed into stdout.
+
+
+If you have custom test runner (com.company.testing.uitest.screenshot.ScreenshotTest in this example) and custom tag to annotate tests:
+```
+
+jara -jar parser.jar path/to/apk path/for/output -A com.company.testing.uitest.screenshot.ScreenshotTest
 
 ```
