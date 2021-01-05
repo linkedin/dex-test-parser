@@ -37,7 +37,7 @@ or you can manually download the jar from [Bintray](https://bintray.com/linkedin
 
 dex-test-parser provides a single public method that you can call from Java to get all test method names.
 ```java
-List<String> customAnnotations = new ArrayList();
+List<String> customAnnotations = new ArrayList<>();
 List<String> testMethodNames = DexParser.findTestNames(apkPath, customAnnotations);
 ```
 Variable customAnnotations is a list of custom tags that marks tests if you are using custom test runner for your tests.
