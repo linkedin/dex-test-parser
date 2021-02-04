@@ -7,7 +7,9 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
-mainClassName = 'com.linkedin.dex.parser.DexParser'
+application {
+    mainClass.set('com.linkedin.dex.parser.DexParser')
+}
 
 task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
     classifier 'javadoc'
