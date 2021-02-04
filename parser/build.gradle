@@ -14,12 +14,6 @@ task sourcesJar(type: Jar) {
     from sourceSets.main.kotlin.srcDirs
 }
 
-task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
-    outputFormat = 'javadoc'
-    outputDirectory = javadoc.destinationDir
-    inputs.dir 'src/main/kotlin'
-}
-
 task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
@@ -84,7 +78,7 @@ build.dependsOn shadowJar
 task testParsing(dependsOn: ':test-app:assembleDebugAndroidTest', type: JavaExec) {
     classpath sourceSets.main.runtimeClasspath
     main = 'com.linkedin.dex.parser.DexParser'
-    args "${rootProject.project('test-app').buildDir}/outputs/apk/test-app-debug-androidTest.apk", "$buildDir"
+    args "${rootProject.project('test-app').buildDir}/outputs/apk/androidTest/debug/test-app-debug-androidTest.apk", "$buildDir"
 
     doLast {
         def validTests = file('ValidTestList.txt').readLines()
