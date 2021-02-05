@@ -7,9 +7,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
-application {
-    mainClass.set('com.linkedin.dex.parser.DexParser')
-}
+mainClassName = 'com.linkedin.dex.parser.DexParser'
 
 task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
     classifier 'javadoc'
@@ -100,28 +98,35 @@ publishing {
     repositories {
         def sonatypeUsername = System.getenv("SONATYPE_USER")
         def sonatypePassword = System.getenv("SONATYPE_PASSWORD")
-        if (sonatypeUsername != null && sonatypePassword != null) {
-            maven {
-                name = "sonatype"
-                def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
-                def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots"
-                url = version.endsWith("SNAPSHOT") ? snapshotsRepoUrl : releasesRepoUrl
-                credentials {
-                    username = sonatypeUsername
-                    password = sonatypePassword
-                }
+        maven {
+            name = "sonatypeSnapshot"
+            url = "https://oss.sonatype.org/content/repositories/snapshots"
+            credentials {
+                username = sonatypeUsername
+                password = sonatypePassword
+            }
+        }
+        maven {
+            name = "mavenCentral"
+            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            credentials {
+                username = sonatypeUsername
+                password = sonatypePassword
             }
         }
     }
 }
 
-signing {
-    // DEX_TEST_PARSER_GPG_PRIVATE_KEY should contain the armoured private key that
-    // starts with -----BEGIN PGP PRIVATE KEY BLOCK-----
-    // It can be obtained with gpg --armour --export-secret-keys KEY_ID
-    useInMemoryPgpKeys(
-            System.getenv("DEX_TEST_PARSER_GPG_PRIVATE_KEY"),
-            System.getenv("DEX_TEST_PARSER_GPG_PRIVATE_KEY_PASSWORD")
-    )
-    sign publishing.publications.maven
+// DEX_TEST_PARSER_GPG_PRIVATE_KEY should contain the armoured private key that
+// starts with -----BEGIN PGP PRIVATE KEY BLOCK-----
+// It can be obtained with gpg --armour --export-secret-keys KEY_ID
+def signingKey = System.getenv("DEX_TEST_PARSER_GPG_PRIVATE_KEY")
+def signingPassword = System.getenv("DEX_TEST_PARSER_GPG_PRIVATE_KEY_PASSWORD")
+if (signingKey != null && signingPassword != null) {
+    signing {
+        useInMemoryPgpKeys(signingKey, signingPassword)
+        sign publishing.publications.maven
+    }
+} else {
+    logger.info("Signing disabled - GPG key was not found")
 }

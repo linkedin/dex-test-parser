@@ -10,7 +10,7 @@ dex-test-parser was inspired by the Google presentation "[Going Green: Cleaning 
 Given an Android instrumentation apk, dex-test-parser will parse the apk's dex files and return the fully qualified method names of all JUnit 3 and JUnit 4 test methods.
 
 Of course, you could also collect this list of method names from inside your test code by scanning the apk internally and using reflection. However, there are several reasons you may not want to do this:
- 
+
  * Scanning the app's classpath for test methods at runtime causes any static initializers in the classes to be run immediately, which can lead to tests that behave differently than production code.
  * You might want to run one invocation of the `adb shell am instrument` command for each test to avoid shared state between tests and so that if one test crashes, other tests are still run.
 
@@ -58,3 +58,19 @@ If you have custom test runner (com.company.testing.uitest.screenshot.Screenshot
 java -jar parser.jar path/to/apk path/for/output -A com.company.testing.uitest.screenshot.ScreenshotTest
 
 ```
+
+## Snapshots
+
+You can use snapshot builds to test the latest unreleased changes. A new snapshot is published
+after every merge to the main branch by the [Deploy Snapshot Github Action workflow](.github/workflows/deploy-snapshot.yml).
+
+Just add the Sonatype snapshot repository to your Gradle scripts:
+```gradle
+repositories {
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots/"
+    }
+}
+```
+
+You can find the latest snapshot version to use in the [gradle.properties](gradle.properties) file.
