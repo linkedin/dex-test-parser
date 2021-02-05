@@ -1,6 +1,11 @@
 # Change Log
 
-## Version 2.1.1 (2020-06-11)
+## Version 2.3.0 (2021-02-05)
+
+- Moved artifact publishing from JCenter to Maven Central [#53](https://github.com/linkedin/dex-test-parser/pull/53)
+- Add support for finding custom test annotations [#50](https://github.com/linkedin/dex-test-parser/pull/50)
+
+## Version 2.2.1 (2020-06-11)
 
 - Fix test parsing when class and superclass are in different dex files [#45](https://github.com/linkedin/dex-test-parser/issues/45)
 

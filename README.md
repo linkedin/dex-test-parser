@@ -21,14 +21,14 @@ Download the latest .jar via Maven:
     <dependency>
       <groupId>com.linkedin.dextestparser</groupId>
       <artifactId>parser</artifactId>
-      <version>2.2.1</version>
+      <version>2.3.0</version>
       <type>pom</type>
     </dependency>
 ```
 
 or Gradle:
 ```
-    compile 'com.linkedin.dextestparser:parser:2.2.1'
+    compile 'com.linkedin.dextestparser:parser:2.3.0'
 ```
 
 or you can manually download the jar from [Bintray](https://bintray.com/linkedin/maven/parser).
