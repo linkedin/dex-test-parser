@@ -1,64 +1,24 @@
-apply plugin: 'kotlin'
-apply plugin: 'com.jfrog.artifactory'
-apply plugin: 'maven-publish'
-apply plugin: 'application'
-apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'org.jetbrains.dokka'
+plugins {
+    id 'application'
+    id 'maven-publish'
+    id 'signing'
+    id 'org.jetbrains.kotlin.jvm'
+    id 'org.jetbrains.dokka' version '1.4.20'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
+}
 
 mainClassName = 'com.linkedin.dex.parser.DexParser'
 
-version = VERSION_NAME
-
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.kotlin.srcDirs
-}
-
 task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
+    classifier 'javadoc'
+    from dokkaJavadoc.outputDirectory
 }
 
-publishing {
-    publications {
-        lib(MavenPublication) {
-            artifact sourcesJar
-            artifact javadocJar
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 
-            from components.java
-            artifact shadowJar {
-                classifier "all"
-            }
-
-            pom.withXml {
-                asNode().children().last() + {
-                    resolveStrategy = Closure.DELEGATE_FIRST
-                    description = 'A utility library for finding all test methods in an Android instrumentation apk'
-                    url 'https://github.com/linkedin/dex-test-parser'
-                    scm {
-                        url 'https://github.com/linkedin/dex-test-parser'
-                        connection 'scm:git:git://github.com/linkedin/dex-test-parser.git'
-                        developerConnection 'https://github.com/linkedin/dex-test-parser.git'
-                    }
-                    licenses {
-                        license {
-                            name 'BSD 2-Clause License'
-                            url 'https://opensource.org/licenses/BSD-2-Clause'
-                            distribution 'repo'
-                        }
-                    }
-
-                    developers {
-                        developer {
-                            id 'com.linkedin'
-                            name 'LinkedIn Corp'
-                            email ''
-                        }
-                    }
-                }
-            }
-        }
-    }
+    withSourcesJar()
 }
 
 repositories {
@@ -71,9 +31,6 @@ dependencies {
 
     testCompile 'junit:junit:4.12'
 }
-
-artifactoryPublish.dependsOn shadowJar
-build.dependsOn shadowJar
 
 task testParsing(dependsOn: ':test-app:assembleDebugAndroidTest', type: JavaExec) {
     classpath sourceSets.main.runtimeClasspath
@@ -99,4 +56,77 @@ check.dependsOn testParsing
 testClasses.dependsOn ':test-app:assembleDebugAndroidTest'
 test {
     workingDir project.getRootProject().getProjectDir()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) { publication ->
+            from components.java
+            artifact(shadowJar) {
+                classifier "fat"
+            }
+            // It would be nice to be able to use withJavadocJar() instead of defining the artifact
+            // manually, but Gradle doesn't expose a way to customize what task generates the
+            // javadoc and we need to use Dokka for Kotlin code.
+            artifact(javadocJar) {
+                classifier = 'javadoc'
+            }
+            pom {
+                name = 'Dex Test Parser'
+                description = 'Find all test methods in an Android instrumentation APK'
+                url = 'https://github.com/linkedin/dex-test-parser'
+                licenses {
+                    license {
+                        name = 'BSD 2-Clause License'
+                        url = 'https://opensource.org/licenses/BSD-2-Clause'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'com.linkedin'
+                        name = 'LinkedIn Corp'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/linkedin/dex-test-parser.git'
+                    developerConnection = 'scm:git:ssh://github.com:linkedin/dex-test-parser.git'
+                    url = 'https://github.com/linkedin/dex-test-parser/tree/master'
+                }
+            }
+        }
+    }
+    repositories {
+        def sonatypeUsername = System.getenv("SONATYPE_USER")
+        def sonatypePassword = System.getenv("SONATYPE_PASSWORD")
+        maven {
+            name = "sonatypeSnapshot"
+            url = "https://oss.sonatype.org/content/repositories/snapshots"
+            credentials {
+                username = sonatypeUsername
+                password = sonatypePassword
+            }
+        }
+        maven {
+            name = "mavenCentral"
+            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            credentials {
+                username = sonatypeUsername
+                password = sonatypePassword
+            }
+        }
+    }
+}
+
+// DEX_TEST_PARSER_GPG_PRIVATE_KEY should contain the armoured private key that
+// starts with -----BEGIN PGP PRIVATE KEY BLOCK-----
+// It can be obtained with gpg --armour --export-secret-keys KEY_ID
+def signingKey = System.getenv("DEX_TEST_PARSER_GPG_PRIVATE_KEY")
+def signingPassword = System.getenv("DEX_TEST_PARSER_GPG_PRIVATE_KEY_PASSWORD")
+if (signingKey != null && signingPassword != null) {
+    signing {
+        useInMemoryPgpKeys(signingKey, signingPassword)
+        sign publishing.publications.maven
+    }
+} else {
+    logger.info("Signing disabled - GPG key was not found")
 }
