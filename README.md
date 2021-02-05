@@ -1,5 +1,5 @@
 # Dex Test Parser
-[![Build Status](https://travis-ci.org/linkedin/dex-test-parser.svg?branch=master)](https://travis-ci.org/linkedin/dex-test-parser)
+[![Build Status](https://img.shields.io/github/workflow/status/linkedin/dex-test-parser/Merge%20checks)](https://img.shields.io/github/workflow/status/linkedin/dex-test-parser/Merge%20checks)
 
 ## Motivation
 
