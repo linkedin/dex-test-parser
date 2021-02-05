@@ -26,10 +26,10 @@ repositories {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-    compile "com.xenomachina:kotlin-argparser:2.0.7"
+    api "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    api "com.xenomachina:kotlin-argparser:2.0.7"
 
-    testCompile 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.13.1'
 }
 
 task testParsing(dependsOn: ':test-app:assembleDebugAndroidTest', type: JavaExec) {
