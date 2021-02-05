@@ -44,11 +44,11 @@ class DexParserArgs(parser: ArgParser) {
         fun main(vararg args: String) {
             val parsedArgs = ArgParser(args).parseInto(::DexParserArgs)
             parsedArgs.run {
-                val allItems = Companion.findTestNames(apkPath, customAnnotations)
+                val allItems = findTestNames(apkPath, customAnnotations)
                 if (outputDir.isEmpty()) {
                     println(allItems.joinToString(separator = "\n"))
                 } else {
-                    Files.write(File(outputDir + "/AllTests.txt").toPath(), allItems)
+                    Files.write(File("$outputDir/AllTests.txt").toPath(), allItems)
                 }
             }
         }
@@ -57,7 +57,8 @@ class DexParserArgs(parser: ArgParser) {
          * Parse the apk found at [apkPath] and return the list of test names found in the apk
          */
         @JvmStatic
-        fun findTestNames(apkPath: String, customAnnotations: List<String>): List<String> {
+        @JvmOverloads
+        fun findTestNames(apkPath: String, customAnnotations: List<String> = emptyList()): List<String> {
             return findTestMethods(apkPath, customAnnotations).map { it.testName }
         }
 
@@ -68,7 +69,8 @@ class DexParserArgs(parser: ArgParser) {
          * explicitly applied to the test method.
          */
         @JvmStatic
-        fun findTestMethods(apkPath: String, customAnnotations: List<String>): List<TestMethod> {
+        @JvmOverloads
+        fun findTestMethods(apkPath: String, customAnnotations: List<String> = emptyList()): List<TestMethod> {
             val dexFiles = readDexFiles(apkPath)
 
             val junit3Items = findJUnit3Tests(dexFiles).sorted()
