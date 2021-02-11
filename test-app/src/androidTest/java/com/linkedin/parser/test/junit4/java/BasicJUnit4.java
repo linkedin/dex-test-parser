@@ -30,4 +30,9 @@ public class BasicJUnit4 extends ConcreteTest {
     private void privateTestShouldNotBeReported() {
         assertTrue(true);
     }
+
+    @NonInheritedAnnotation
+    public void customAnnotationTest() {
+
+    }
 }

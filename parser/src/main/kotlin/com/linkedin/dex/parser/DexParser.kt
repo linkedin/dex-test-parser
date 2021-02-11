@@ -4,9 +4,14 @@
  */
 package com.linkedin.dex.parser
 
+import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.parameters.arguments.argument
+import com.github.ajalt.clikt.parameters.arguments.default
+import com.github.ajalt.clikt.parameters.arguments.help
+import com.github.ajalt.clikt.parameters.options.help
+import com.github.ajalt.clikt.parameters.options.multiple
+import com.github.ajalt.clikt.parameters.options.option
 import com.linkedin.dex.spec.DexFile
-import com.xenomachina.argparser.ArgParser
-import com.xenomachina.argparser.default
 import java.io.File
 import java.io.FileInputStream
 import java.nio.ByteBuffer
@@ -21,17 +26,23 @@ import java.util.zip.ZipInputStream
  * NOTE: everything in the spec package is derived from the dex file format spec:
  * https://source.android.com/devices/tech/dalvik/dex-format.html
  */
-class DexParserArgs(parser: ArgParser) {
-    val apkPath by parser.positional(
-        help = "path to apk file"
-    )
+private class DexParserCommand : CliktCommand() {
+    val apkPath: String by argument().help("path to apk file")
 
-    val outputDir by parser.positional(
-        help = "path to output dir where AllTests.txt file will be saved, if not set output will go to stdout"
+    val outputDir by argument().help("path to output dir where AllTests.txt file will be saved, if not set output will go to stdout"
     ).default("")
 
-    val customAnnotations by parser.adding(
-        "-A", help = "add custom annotation used by tests") { toString() }
+    val customAnnotations: List<String> by option("-A", "--annotation").multiple().help("add custom annotation used by tests")
+
+    override fun run() {
+        println("Got file $apkPath output dir $outputDir, annotations: q${customAnnotations}q")
+        val allItems = DexParser.findTestNames(apkPath, customAnnotations)
+        if (outputDir.isEmpty()) {
+            println(allItems.joinToString(separator = "\n"))
+        } else {
+            Files.write(File("$outputDir/AllTests.txt").toPath(), allItems)
+        }
+    }
 }
 
  class DexParser private constructor() {
@@ -42,15 +53,7 @@ class DexParserArgs(parser: ArgParser) {
          */
         @JvmStatic
         fun main(vararg args: String) {
-            val parsedArgs = ArgParser(args).parseInto(::DexParserArgs)
-            parsedArgs.run {
-                val allItems = findTestNames(apkPath, customAnnotations)
-                if (outputDir.isEmpty()) {
-                    println(allItems.joinToString(separator = "\n"))
-                } else {
-                    Files.write(File("$outputDir/AllTests.txt").toPath(), allItems)
-                }
-            }
+            DexParserCommand().main(args)
         }
 
         /**

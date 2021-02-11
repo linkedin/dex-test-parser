@@ -27,7 +27,7 @@ repositories {
 
 dependencies {
     api "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-    api "com.xenomachina:kotlin-argparser:2.0.7"
+    implementation("com.github.ajalt.clikt:clikt:3.1.0")
 
     testImplementation 'junit:junit:4.13.1'
 }
@@ -35,7 +35,7 @@ dependencies {
 task testParsing(dependsOn: ':test-app:assembleDebugAndroidTest', type: JavaExec) {
     classpath sourceSets.main.runtimeClasspath
     main = 'com.linkedin.dex.parser.DexParser'
-    args "${rootProject.project('test-app').buildDir}/outputs/apk/androidTest/debug/test-app-debug-androidTest.apk", "$buildDir"
+    args "${rootProject.project('test-app').buildDir}/outputs/apk/androidTest/debug/test-app-debug-androidTest.apk", "$buildDir", "-A", "com.linkedin.parser.test.junit4.java.NonInheritedAnnotation"
 
     doLast {
         def validTests = file('ValidTestList.txt').readLines()
