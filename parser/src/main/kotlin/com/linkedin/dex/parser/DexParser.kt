@@ -35,7 +35,6 @@ private class DexParserCommand : CliktCommand() {
     val customAnnotations: List<String> by option("-A", "--annotation").multiple().help("add custom annotation used by tests")
 
     override fun run() {
-        println("Got file $apkPath output dir $outputDir, annotations: q${customAnnotations}q")
         val allItems = DexParser.findTestNames(apkPath, customAnnotations)
         if (outputDir.isEmpty()) {
             println(allItems.joinToString(separator = "\n"))
