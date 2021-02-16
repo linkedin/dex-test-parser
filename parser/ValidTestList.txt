@@ -10,6 +10,7 @@ com.linkedin.parser.test.junit4.java.BasicJUnit4#abstractTest
 com.linkedin.parser.test.junit4.java.BasicJUnit4#basicJUnit4
 com.linkedin.parser.test.junit4.java.BasicJUnit4#basicJUnit4Second
 com.linkedin.parser.test.junit4.java.BasicJUnit4#concreteTest
+com.linkedin.parser.test.junit4.java.BasicJUnit4#customAnnotationTest
 com.linkedin.parser.test.junit4.java.ConcreteTest#abstractTest
 com.linkedin.parser.test.junit4.java.ConcreteTest#concreteTest
 com.linkedin.parser.test.junit4.java.JUnit4ClassInsideInterface$InnerClass#innerClassTest
