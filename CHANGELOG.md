@@ -1,5 +1,9 @@
 # Change Log
 
+## Version 2.3.1 (2021-02-21)
+
+- Moved argument parsing to a new library [#60](https://github.com/linkedin/dex-test-parser/pull/60)
+
 ## Version 2.3.0 (2021-02-05)
 
 - Moved artifact publishing from JCenter to Maven Central [#53](https://github.com/linkedin/dex-test-parser/pull/53)
