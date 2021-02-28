@@ -90,7 +90,7 @@ publishing {
                 scm {
                     connection = 'scm:git:git://github.com/linkedin/dex-test-parser.git'
                     developerConnection = 'scm:git:ssh://github.com:linkedin/dex-test-parser.git'
-                    url = 'https://github.com/linkedin/dex-test-parser/tree/master'
+                    url = 'https://github.com/linkedin/dex-test-parser/tree/main'
                 }
             }
         }
