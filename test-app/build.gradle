@@ -1,4 +1,3 @@
-// TODO: Move to the plugins{} block when AGP 4.2 stable is released
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
@@ -21,7 +20,6 @@ android {
 repositories {
     google()
     mavenCentral()
-    jcenter()
 }
 
 dependencies {
