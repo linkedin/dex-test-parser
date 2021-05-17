@@ -34,12 +34,12 @@ class DexFile(byteBuffer: ByteBuffer) {
         this.byteBuffer.position(0)
         headerItem = HeaderItem(this.byteBuffer)
         headerItem.validate()
-        stringIds = parse(headerItem.stringIdsSize, headerItem.stringIdsOff, StringIdItem.size, ::StringIdItem)
-        typeIds = parse(headerItem.typeIdsSize, headerItem.typeIdsOff, TypeIdItem.size, ::TypeIdItem)
-        protoIds = parse(headerItem.protoIdsSize, headerItem.protoIdsOff, ProtoIdItem.size, ::ProtoIdItem)
-        fieldIds = parse(headerItem.fieldIdsSize, headerItem.fieldIdsOff, FieldIdItem.size, ::FieldIdItem)
-        methodIds = parse(headerItem.methodIdsSize, headerItem.methodIdsOff, MethodIdItem.size, ::MethodIdItem)
-        classDefs = parse(headerItem.classDefsSize, headerItem.classDefsOff, ClassDefItem.size, ::ClassDefItem)
+        stringIds = parse(headerItem.stringIdsSize, headerItem.stringIdsOff, StringIdItem.size) { StringIdItem(it) }
+        typeIds = parse(headerItem.typeIdsSize, headerItem.typeIdsOff, TypeIdItem.size) { TypeIdItem(it) }
+        protoIds = parse(headerItem.protoIdsSize, headerItem.protoIdsOff, ProtoIdItem.size) { ProtoIdItem(it) }
+        fieldIds = parse(headerItem.fieldIdsSize, headerItem.fieldIdsOff, FieldIdItem.size) { FieldIdItem(it) }
+        methodIds = parse(headerItem.methodIdsSize, headerItem.methodIdsOff, MethodIdItem.size) { MethodIdItem(it) }
+        classDefs = parse(headerItem.classDefsSize, headerItem.classDefsOff, ClassDefItem.size) { ClassDefItem(it) }
     }
 
     val inheritedAnnotationTypeIdIndex: Int? by lazy {
