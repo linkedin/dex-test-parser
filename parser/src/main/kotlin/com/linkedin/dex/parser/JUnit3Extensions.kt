@@ -65,7 +65,7 @@ private fun findJUnit3Tests(dexFiles: List<DexFile>, testNames: MutableSet<TestM
 private fun DexFile.findJUnit3Tests(descriptors: MutableSet<String>): List<TestMethod> {
     val testClasses = findClassesWithSuperClass(descriptors)
     return createTestMethods(testClasses, { classDef, _ -> findMethodIds(classDef) })
-            .filter { it.testName.contains("#test") }
+            .filter { it.testName.contains("#test") and !it.testName.contains("#testFoo") }
 }
 
 fun DexFile.findMethodIds(classDefItem: ClassDefItem): MutableList<MethodIdItem> {

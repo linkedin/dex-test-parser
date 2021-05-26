@@ -61,7 +61,7 @@ private class DexParserCommand : CliktCommand() {
         @JvmStatic
         @JvmOverloads
         fun findTestNames(apkPath: String, customAnnotations: List<String> = emptyList()): List<String> {
-            return findTestMethods(apkPath, customAnnotations).map { it.testName }
+            return findTestMethods(apkPath, customAnnotations).map { it.testName }.distinct()
         }
 
         /**
@@ -84,11 +84,32 @@ private class DexParserCommand : CliktCommand() {
         fun readDexFiles(path: String): List<DexFile> {
             ZipInputStream(FileInputStream(File(path))).use { zip ->
                 return zip.entries()
-                        .filter { it.name.endsWith(".dex") }
-                        .map { zip.readBytes() }
+                        .filter {
+                            it.name.endsWith(".dex") or
+                                    (it.name.contains("secondary-program-dex-jars")
+                                            and it.name.endsWith(".jar"))
+                        }
+                        .map {
+                            if (it.name.endsWith(".jar")) {
+                                readSecondaryDex(zip.readBytes())
+                            } else {
+                                zip.readBytes()
+                            }
+                        }
                         .map { ByteBuffer.wrap(it) }
                         .map(::DexFile)
                         .toList()
+            }
+        }
+
+        private fun readSecondaryDex(jardex: ByteArray): ByteArray {
+            ZipInputStream(jardex.inputStream()).use { zip ->
+                return zip.entries()
+                    .filter {
+                        it.name.endsWith(".dex")
+                    }
+                    .map{ zip.readBytes() }
+                    .first()
             }
         }
 
