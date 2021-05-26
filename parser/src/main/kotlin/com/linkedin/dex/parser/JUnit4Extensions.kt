@@ -44,7 +44,7 @@ private fun List<DexFile>.parseClasses(customAnnotations: List<String>): Map<Str
                     dexFile
                             .classDefs
                             .asSequence()
-                            .filterNot(ClassDefItem::isInterface)
+                            .filterNot { classDefItem -> classDefItem.isInterface }
                             .map { classDef ->
                                 val testMethods = dexFile
                                         .createTestMethods(classDef, dexFile.findMethodIds())
