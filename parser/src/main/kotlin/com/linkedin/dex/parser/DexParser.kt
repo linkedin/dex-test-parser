@@ -87,7 +87,7 @@ private class DexParserCommand : CliktCommand() {
                         .filter { it.name.endsWith(".dex") }
                         .map { zip.readBytes() }
                         .map { ByteBuffer.wrap(it) }
-                        .map(::DexFile)
+                        .map { DexFile(it) }
                         .toList()
             }
         }
