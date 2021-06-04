@@ -1,5 +1,8 @@
 # Change Log
 
+## Version 2.3.3 (2021-06-04)
+- Fix Dokka publishing [#67](https://github.com/linkedin/dex-test-parser/pull/67)
+
 ## Version 2.3.2 (2021-06-04)
 - Fix issue with callable references in Kotlin 1.4 [#65](https://github.com/linkedin/dex-test-parser/pull/64)
 - Update Dokka to 1.4.32 [#64](https://github.com/linkedin/dex-test-parser/pull/64)
