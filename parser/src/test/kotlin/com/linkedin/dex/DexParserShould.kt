@@ -19,14 +19,14 @@ class DexParserShould {
     fun parseCorrectNumberOfTestMethods() {
         val testMethods = DexParser.findTestNames(APK_PATH, listOf(""))
 
-        assertEquals(21, testMethods.size)
+        assertEquals(23, testMethods.size)
     }
 
     @Test
     fun parseMethodWithMultipleMethodAnnotations() {
         val testMethods = DexParser.findTestMethods(APK_PATH, listOf("")).filter { it.annotations.filter { it.name.contains("TestValueAnnotation") }.isNotEmpty() }
 
-        assertEquals(4, testMethods.size)
+        assertEquals(5, testMethods.size)
 
         val method = testMethods[1]
         assertEquals(method.testName, "com.linkedin.parser.test.junit4.java.BasicJUnit4#basicJUnit4")
@@ -40,7 +40,7 @@ class DexParserShould {
 
         val method = testMethods[0]
         assertEquals("com.linkedin.parser.test.junit4.java.BasicJUnit4#abstractTest", method.testName)
-        assertEquals(method.annotations[1].values["stringValue"], DecodedValue.DecodedString("Hello world!"))
+        assertEquals(method.annotations[2].values["stringValue"], DecodedValue.DecodedString("Hello world!"))
     }
 
     @Test
@@ -49,14 +49,15 @@ class DexParserShould {
 
         val method = testMethods[0]
         assertEquals("com.linkedin.parser.test.junit4.java.BasicJUnit4#concreteTest", method.testName)
-        assertEquals(method.annotations[2].values["stringValue"], DecodedValue.DecodedString("Hello world!"))
+        assertEquals(method.annotations[0].values["stringValue"], DecodedValue.DecodedString("Hello world!"))
     }
 
     @Test
     fun parsNonInheritedMethodAnnotation() {
         val testMethods = DexParser.findTestMethods(APK_PATH, listOf("")).filter { it.annotations.filter { it.name.contains("InheritedAnnotation") }.isNotEmpty() }
 
-        val method = testMethods[0]
+        val method = testMethods.find { it.testName.contains("BasicJUnit4#concreteTest") }
+        requireNotNull(method)
         assertEquals("com.linkedin.parser.test.junit4.java.BasicJUnit4#concreteTest", method.testName)
         assertFalse(method.annotations.any { it.name.contains("NonInheritedAnnotation") })
     }
@@ -221,6 +222,15 @@ class DexParserShould {
         assertMatches(methodAnnotation.values["typeValue"], "Lorg/junit/Test;")
     }
 
+    @Test
+    fun parseAbstractClassTestMethodCorrectly() {
+        val method = getTestMethodFromAbstractClass()
+        val annotations = method.annotations
+
+        assertEquals(annotations.size, 2)
+        assertTrue(annotations.any { it.name == "org.junit.Test" })
+    }
+
     private fun getBasicJunit4TestMethod(): TestMethod {
         val testMethods = DexParser.findTestMethods(APK_PATH, listOf("")).filter { it.annotations.filter { it.name.contains("TestValueAnnotation") }.isNotEmpty() }.filter { it.testName.equals("com.linkedin.parser.test.junit4.java.BasicJUnit4#basicJUnit4") }
 
@@ -239,6 +249,17 @@ class DexParserShould {
 
         val method = testMethods.first()
         assertEquals(method.testName, "com.linkedin.parser.test.junit4.java.BasicJUnit4#basicJUnit4Second")
+
+        return method
+    }
+
+    private fun getTestMethodFromAbstractClass(): TestMethod {
+        val testMethods = DexParser.findTestMethods(APK_PATH, listOf("")).filter { it.testName.equals("com.linkedin.parser.test.junit4.java.ConcreteTest#abstractTest") }
+
+        assertEquals(1, testMethods.size)
+
+        val method = testMethods.first()
+        assertEquals(method.testName, "com.linkedin.parser.test.junit4.java.ConcreteTest#abstractTest")
 
         return method
     }

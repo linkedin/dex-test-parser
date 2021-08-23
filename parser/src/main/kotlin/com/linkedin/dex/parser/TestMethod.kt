@@ -9,7 +9,7 @@ import com.linkedin.dex.spec.ClassDefItem
 import com.linkedin.dex.spec.DexFile
 import com.linkedin.dex.spec.MethodIdItem
 
-data class TestMethod(val testName: String, val annotations: List<TestAnnotation>) : Comparable<TestMethod> {
+data class TestMethod(val testName: String, val annotations: MutableList<TestAnnotation>) : Comparable<TestMethod> {
     override fun compareTo(other: TestMethod): Int = testName.compareTo(other.testName)
 }
 
@@ -52,7 +52,7 @@ private fun DexFile.createTestMethod(methodId: MethodIdItem,
                                      classAnnotations: List<TestAnnotation>): TestMethod {
     val methodAnnotationDescriptors = getMethodAnnotationValues(methodId, directory)
 
-    val annotations = classAnnotations.plus(methodAnnotationDescriptors)
+    val annotations = classAnnotations.plus(methodAnnotationDescriptors).toMutableList()
 
     val className = formatClassName(classDef)
     val methodName = ParseUtils.parseMethodName(byteBuffer, stringIds, methodId)

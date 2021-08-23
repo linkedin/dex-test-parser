@@ -119,19 +119,38 @@ private fun createAllTestMethods(
             val childClassAnnotations = dexFile.getClassAnnotationValues(directory)
             val childClassAnnotationNames = childClassAnnotations.map { it.name }
 
+            // We need to differentiate cases where a method is overridden from the superclass
+            // vs when they are not, as it will impact whether we should include all annotations
+            // from the superclass method or just ones with the inherited property
+            // So, we exclude any that have overridden versions
             val adaptedSuperMethods = superTestMethods
+                .filterNot { superMethod -> parsingResult.testMethods.any {
+                    it.testNameWithoutClass.equals(superMethod.testNameWithoutClass) } }
                     .map { method ->
                         val onlyParentAnnotations = method
                                 .annotations
                                 .filterNot { childClassAnnotationNames.contains(it.name) }
-                                .filter { it.inherited }
 
                         TestMethod(
                                 testName = className + method.testNameWithoutClass,
-                                annotations = onlyParentAnnotations + childClassAnnotations
+                                annotations = (onlyParentAnnotations + childClassAnnotations).toMutableList()
                         )
                     }
                     .toSet()
+
+            // alter the existing test methods to include super annotations if they're inherited
+            parsingResult.testMethods.filter { method -> superTestMethods.any {
+            it.testNameWithoutClass.equals(method.testNameWithoutClass) } }
+                .map { method ->
+                    val superMethod = superTestMethods.find { it.testNameWithoutClass == method.testNameWithoutClass }
+                    val onlyParentAnnotations = superMethod?.annotations ?: emptySet()
+                    val inheritedAnnotations = onlyParentAnnotations
+                        .filterNot { childClassAnnotationNames.contains(it.name) }
+                        .filter { it.inherited }
+
+                    method.annotations += inheritedAnnotations
+
+                }
 
             return adaptedSuperMethods union parsingResult.testMethods
         }

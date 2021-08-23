@@ -13,4 +13,11 @@ public class ConcreteTest extends AbstractTest {
     public void concreteTest() {
         assertTrue(true);
     }
+
+    @NonInheritedAnnotation
+    @InheritedAnnotation
+    @Test
+    public void nonOverriddenConcreteTest() {
+        assertTrue(true);
+    }
 }

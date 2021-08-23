@@ -42,7 +42,7 @@ task testParsing(dependsOn: ':test-app:assembleDebugAndroidTest', type: JavaExec
         def parsedTests = file("$buildDir/AllTests.txt").readLines()
 
         if (validTests != parsedTests) {
-            throw new GradleException("Parsed tests do not match expected tests")
+            throw new GradleException("Parsed tests do not match expected tests: " + parsedTests)
         }
     }
 }
