@@ -9,7 +9,7 @@ import com.linkedin.dex.spec.ClassDefItem
 import com.linkedin.dex.spec.DexFile
 import com.linkedin.dex.spec.MethodIdItem
 
-data class TestMethod(val testName: String, val annotations: MutableList<TestAnnotation>) : Comparable<TestMethod> {
+data class TestMethod(val testName: String, val annotations: List<TestAnnotation>) : Comparable<TestMethod> {
     override fun compareTo(other: TestMethod): Int = testName.compareTo(other.testName)
 }
 

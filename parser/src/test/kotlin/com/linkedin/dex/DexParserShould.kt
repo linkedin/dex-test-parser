@@ -49,7 +49,7 @@ class DexParserShould {
 
         val method = testMethods[0]
         assertEquals("com.linkedin.parser.test.junit4.java.BasicJUnit4#concreteTest", method.testName)
-        assertEquals(method.annotations[0].values["stringValue"], DecodedValue.DecodedString("Hello world!"))
+        assertEquals(method.annotations[2].values["stringValue"], DecodedValue.DecodedString("Hello world!"))
     }
 
     @Test

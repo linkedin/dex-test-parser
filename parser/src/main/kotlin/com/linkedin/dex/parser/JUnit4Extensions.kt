@@ -125,7 +125,8 @@ private fun createAllTestMethods(
             // So, we exclude any that have overridden versions
             val adaptedSuperMethods = superTestMethods
                 .filterNot { superMethod -> parsingResult.testMethods.any {
-                    it.testNameWithoutClass.equals(superMethod.testNameWithoutClass) } }
+                    it.testNameWithoutClass == superMethod.testNameWithoutClass
+                } }
                     .map { method ->
                         val onlyParentAnnotations = method
                                 .annotations
@@ -139,8 +140,9 @@ private fun createAllTestMethods(
                     .toSet()
 
             // alter the existing test methods to include super annotations if they're inherited
-            parsingResult.testMethods.filter { method -> superTestMethods.any {
-            it.testNameWithoutClass.equals(method.testNameWithoutClass) } }
+            val alteredMethodsd = parsingResult.testMethods.filter { method -> superTestMethods.any {
+                it.testNameWithoutClass == method.testNameWithoutClass
+            } }
                 .map { method ->
                     val superMethod = superTestMethods.find { it.testNameWithoutClass == method.testNameWithoutClass }
                     val onlyParentAnnotations = superMethod?.annotations ?: emptySet()
@@ -148,11 +150,14 @@ private fun createAllTestMethods(
                         .filterNot { childClassAnnotationNames.contains(it.name) }
                         .filter { it.inherited }
 
-                    method.annotations += inheritedAnnotations
-
+                    TestMethod(method.testName, inheritedAnnotations + method.annotations)
                 }
 
-            return adaptedSuperMethods union parsingResult.testMethods
+            val originalTestMethods = parsingResult.testMethods.filterNot { method -> superTestMethods.any {
+                it.testNameWithoutClass == method.testNameWithoutClass
+            } }
+
+            return adaptedSuperMethods union alteredMethodsd union originalTestMethods
         }
 
 private val TestMethod.testNameWithoutClass
