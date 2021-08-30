@@ -31,6 +31,12 @@ public class BasicJUnit4 extends ConcreteTest {
         assertTrue(true);
     }
 
+    @Override
+    @Test
+    public void concreteTest() {
+        super.concreteTest();
+    }
+
     @NonInheritedAnnotation
     public void customAnnotationTest() {
 

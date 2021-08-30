@@ -52,7 +52,7 @@ private fun DexFile.createTestMethod(methodId: MethodIdItem,
                                      classAnnotations: List<TestAnnotation>): TestMethod {
     val methodAnnotationDescriptors = getMethodAnnotationValues(methodId, directory)
 
-    val annotations = classAnnotations.plus(methodAnnotationDescriptors)
+    val annotations = classAnnotations.plus(methodAnnotationDescriptors).toMutableList()
 
     val className = formatClassName(classDef)
     val methodName = ParseUtils.parseMethodName(byteBuffer, stringIds, methodId)
