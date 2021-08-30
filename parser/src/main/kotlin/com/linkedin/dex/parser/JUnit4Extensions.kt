@@ -140,7 +140,7 @@ private fun createAllTestMethods(
                     .toSet()
 
             // alter the existing test methods to include super annotations if they're inherited
-            val alteredMethodsd = parsingResult.testMethods.filter { method -> superTestMethods.any {
+            val alteredMethods = parsingResult.testMethods.filter { method -> superTestMethods.any {
                 it.testNameWithoutClass == method.testNameWithoutClass
             } }
                 .map { method ->
@@ -157,7 +157,7 @@ private fun createAllTestMethods(
                 it.testNameWithoutClass == method.testNameWithoutClass
             } }
 
-            return adaptedSuperMethods union alteredMethodsd union originalTestMethods
+            return adaptedSuperMethods union alteredMethods union originalTestMethods
         }
 
 private val TestMethod.testNameWithoutClass
