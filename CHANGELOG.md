@@ -1,5 +1,9 @@
 # Change Log
 
+## Version 2.3.4 (2022-03-08)
+- Fix BufferUnderflowException when parsing dex file [#73](https://github.com/linkedin/dex-test-parser/pull/73)
+- Differentiate overridden vs inherited super test methods [#71] (https://github.com/linkedin/dex-test-parser/pull/71)
+
 ## Version 2.3.3 (2021-06-04)
 - Fix Dokka publishing [#67](https://github.com/linkedin/dex-test-parser/pull/67)
 
