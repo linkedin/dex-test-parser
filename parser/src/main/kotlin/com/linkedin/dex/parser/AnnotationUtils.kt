@@ -85,7 +85,7 @@ private fun DexFile.checkIfAnnotationIsInherited(annotationClassDef: ClassDefIte
 
     return annotationClassDef?.let {
         val annotationsDirectory = getAnnotationsDirectory(annotationClassDef)
-        if (annotationsDirectory != null) {
+        if (annotationsDirectory != null && annotationsDirectory.classAnnotationsOff != 0) {
             val classAnnotationSetItem = AnnotationSetItem.create(byteBuffer, annotationsDirectory.classAnnotationsOff)
             val annotations = classAnnotationSetItem.entries.map { AnnotationItem.create(byteBuffer, it.annotationOff) }
             return@let annotations.any { it.encodedAnnotation.typeIdx == inheritedAnnotationTypeIdIndex }
