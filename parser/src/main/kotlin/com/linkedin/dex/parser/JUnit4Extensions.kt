@@ -49,6 +49,7 @@ private fun List<DexFile>.parseClasses(customAnnotations: List<String>): Map<Str
                                 val testMethods = dexFile
                                         .createTestMethods(classDef, dexFile.findMethodIds())
                                         .filter { it.containsTestAnnotation(customAnnotations) }
+                                        .filterNot { it.annotations.any { annotation -> annotation.name == JUNIT_IGNORE_ANNOTATION_NAME } }
 
                                 ClassParsingResult(
                                         dexFile = dexFile,
@@ -63,6 +64,7 @@ private fun List<DexFile>.parseClasses(customAnnotations: List<String>): Map<Str
                 .associateBy { it.className }
 
 private const val JUNIT_TEST_ANNOTATION_NAME = "org.junit.Test"
+private const val JUNIT_IGNORE_ANNOTATION_NAME = "org.junit.Ignore"
 
 private fun TestMethod.containsTestAnnotation(customAnnotations: List<String>): Boolean {
     for (a in customAnnotations) {
