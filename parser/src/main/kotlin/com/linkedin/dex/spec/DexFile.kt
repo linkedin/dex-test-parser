@@ -54,11 +54,6 @@ class DexFile(byteBuffer: ByteBuffer) {
     }
 
     val typeIdToClassDefMap: Map<Int, ClassDefItem> by lazy {
-        val map = mutableMapOf<Int, ClassDefItem>()
-
-        for (classDef in classDefs) {
-            map[classDef.classIdx] = classDef
-        }
-        map.toMap()
+        classDefs.associateBy { it.classIdx }
     }
 }
