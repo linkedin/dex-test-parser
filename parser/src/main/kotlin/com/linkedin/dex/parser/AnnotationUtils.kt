@@ -52,13 +52,13 @@ fun DexFile.getClassAnnotationValues(directory: AnnotationsDirectoryItem?): List
 fun DexFile.getMethodAnnotationValues(methodId: MethodIdItem, annotationsDirectory: AnnotationsDirectoryItem?): List<TestAnnotation> {
     val methodAnnotations = annotationsDirectory?.methodAnnotations ?: emptyArray<MethodAnnotation>()
     val annotationSets = methodAnnotations.filter { methodIds[it.methodIdx] == methodId }
-            .map { (_, annotationsOff) ->
-                AnnotationSetItem.create(byteBuffer, annotationsOff)
-            }
+        .map { (_, annotationsOff) ->
+            AnnotationSetItem.create(byteBuffer, annotationsOff)
+        }
 
-    return annotationSets.map {
+    return annotationSets.flatMap {
         it.entries.map { AnnotationItem.create(byteBuffer, it.annotationOff) }.map { getTestAnnotation(it) }
-    }.flatten()
+    }
 }
 
 fun DexFile.getTestAnnotation(annotationItem: AnnotationItem): TestAnnotation {
