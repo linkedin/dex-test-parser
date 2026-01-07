@@ -3,14 +3,14 @@ plugins {
     id 'maven-publish'
     id 'signing'
     id 'org.jetbrains.kotlin.jvm'
-    id 'org.jetbrains.dokka' version '1.4.32'
-    id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'org.jetbrains.dokka' version '1.8.20'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
 mainClassName = 'com.linkedin.dex.parser.DexParser'
 
 task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
-    classifier 'javadoc'
+    archiveClassifier = 'javadoc'
     from dokkaJavadoc.outputDirectory
 }
 
@@ -27,9 +27,9 @@ repositories {
 
 dependencies {
     api "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-    implementation "com.github.ajalt.clikt:clikt:3.1.0"
+    implementation "com.github.ajalt.clikt:clikt:3.5.2"
 
-    testImplementation 'junit:junit:4.13.1'
+    testImplementation 'junit:junit:4.13.2'
 }
 
 task testParsing(dependsOn: ':test-app:assembleDebugAndroidTest', type: JavaExec) {
